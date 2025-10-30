@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { getHealth } from '../api';
+import { FediStatus } from '../components/FediStatus';
 
 export default function Home() {
   const [health, setHealth] = React.useState<any>(null);
@@ -11,6 +12,8 @@ export default function Home() {
 
   return (
     <div className="space-y-8">
+      <FediStatus />
+      
       <div className="text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
           Welcome to ErrandBit

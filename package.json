@@ -1,0 +1,16 @@
+{
+  "name": "errandbit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Trust-minimized local services marketplace powered by Bitcoin Lightning",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "migrate": "cd backend && npm run migrate"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}

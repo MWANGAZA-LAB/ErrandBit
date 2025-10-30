@@ -7,15 +7,24 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   role VARCHAR(20) NOT NULL CHECK (role IN ('client', 'runner', 'admin')),
-  phone VARCHAR(20) UNIQUE NOT NULL,
+  phone VARCHAR(20) UNIQUE,
   phone_verified BOOLEAN DEFAULT FALSE,
   email VARCHAR(255) UNIQUE,
   email_verified BOOLEAN DEFAULT FALSE,
+  nostr_pubkey VARCHAR(64) UNIQUE,
+  auth_method VARCHAR(20) CHECK (auth_method IN ('phone', 'email', 'nostr')),
   created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  updated_at TIMESTAMP DEFAULT NOW(),
+  CONSTRAINT auth_method_check CHECK (
+    (auth_method = 'phone' AND phone IS NOT NULL) OR
+    (auth_method = 'email' AND email IS NOT NULL) OR
+    (auth_method = 'nostr' AND nostr_pubkey IS NOT NULL)
+  )
 );
 
 CREATE INDEX idx_users_phone ON users(phone);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_nostr_pubkey ON users(nostr_pubkey);
 CREATE INDEX idx_users_role ON users(role);
 
 -- Runner profiles

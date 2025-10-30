@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import FindRunners from './pages/FindRunners';
 import MyJobs from './pages/MyJobs';
 import Profile from './pages/Profile';
+import JobDetail from './pages/JobDetail';
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Route index element={<Home />} />
         <Route path="find-runners" element={<FindRunners />} />
         <Route path="my-jobs" element={<MyJobs />} />
+        <Route path="jobs/:id" element={<JobDetail />} />
         <Route path="profile" element={<Profile />} />
       </Route>
     </Routes>

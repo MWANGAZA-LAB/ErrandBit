@@ -6,11 +6,15 @@
 
 ErrandBit eliminates platform rent-seeking through Bitcoin Lightning payments, returning economic power to service providers while maintaining client protection through reputation and lightweight coordination.
 
+**Now available as a Fedi Mod!** Run natively in the Fedi app with seamless WebLN payments and Nostr identity. See [FEDI_INTEGRATION.md](FEDI_INTEGRATION.md) for details.
+
 ## Technology Stack
 
 - **Backend:** Node.js + Express + PostgreSQL + PostGIS
 - **Frontend:** React + TypeScript + Vite + Tailwind CSS
-- **Payments:** Bitcoin Lightning (LNURL + WebLN + LNBits)
+- **Payments:** Bitcoin Lightning (WebLN + LNURL + LNBits)
+- **Identity:** Nostr (privacy-preserving, optional)
+- **Platform:** Fedi Mod (runs in Fedi app) + Web
 - **Real-time:** Socket.io + Redis (planned)
 - **Maps:** Mapbox (planned)
 
@@ -35,22 +39,45 @@ npm install
 cp .env.example .env
 ```
 
-### 2. Configure Database
+### 2. Setup Database
 
-Edit `backend/.env`:
-```env
-PORT=4000
-DATABASE_URL=postgresql://user:password@localhost:5432/errandbit
+**Quick Setup (Automated):**
+```bash
+# Windows - Run setup script
+.\setup-database.bat
+
+# Or PowerShell
+.\setup-database.ps1
 ```
 
-Create database and run migrations:
+**Manual Setup:**
 ```bash
+# Create database
+psql -U postgres -c "CREATE DATABASE errandbit;"
+psql -U postgres -d errandbit -c "CREATE EXTENSION postgis;"
+
+# Configure backend/.env
+# DATABASE_URL=postgresql://postgres:password@localhost:5432/errandbit
+
+# Run migrations
 cd backend
 npm run migrate
+
+# Verify
+npm run verify-db
 ```
+
+See [DATABASE_QUICK_START.md](DATABASE_QUICK_START.md) for detailed instructions.
 
 ### 3. Start Servers
 
+**Option 1: Using the batch file (Windows)**
+```bash
+# Run both servers in separate windows
+.\start-dev.bat
+```
+
+**Option 2: Manual (two separate terminals)**
 ```bash
 # Terminal 1 - Backend
 cd backend
@@ -61,6 +88,15 @@ npm run dev
 cd frontend
 npm run dev
 # → http://localhost:5173
+```
+
+**Option 3: Using npm scripts from root**
+```bash
+# Terminal 1 - Backend
+npm run dev:backend
+
+# Terminal 2 - Frontend
+npm run dev:frontend
 ```
 
 ### 4. Verify
