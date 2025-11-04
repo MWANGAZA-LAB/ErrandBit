@@ -11,6 +11,7 @@ CREATE TABLE users (
   phone_verified BOOLEAN DEFAULT FALSE,
   email VARCHAR(255) UNIQUE,
   email_verified BOOLEAN DEFAULT FALSE,
+  password_hash VARCHAR(255),
   nostr_pubkey VARCHAR(64) UNIQUE,
   auth_method VARCHAR(20) CHECK (auth_method IN ('phone', 'email', 'nostr')),
   created_at TIMESTAMP DEFAULT NOW(),
@@ -184,3 +185,17 @@ CREATE TABLE bonds (
 );
 
 CREATE INDEX idx_bonds_runner_id ON bonds(runner_id);
+
+-- Payments table (for Lightning payment tracking)
+CREATE TABLE payments (
+  id SERIAL PRIMARY KEY,
+  job_id INTEGER NOT NULL REFERENCES jobs(id),
+  payment_hash VARCHAR(64) UNIQUE,
+  preimage VARCHAR(64),
+  amount_sats INTEGER NOT NULL,
+  paid_at TIMESTAMP DEFAULT NOW(),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_payments_job_id ON payments(job_id);
+CREATE INDEX idx_payments_payment_hash ON payments(payment_hash);
