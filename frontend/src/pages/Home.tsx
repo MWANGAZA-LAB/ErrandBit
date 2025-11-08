@@ -23,16 +23,16 @@ export default function Home() {
         </p>
         <div className="flex justify-center space-x-4">
           <Link
-            to="/find-runners"
-            className="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors"
+            to="/browse-jobs"
+            className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
           >
-            Find a Runner
+            Browse Jobs
           </Link>
           <Link
-            to="/profile"
+            to="/create-job"
             className="bg-gray-200 text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
           >
-            Become a Runner
+            Post a Job
           </Link>
         </div>
       </div>
