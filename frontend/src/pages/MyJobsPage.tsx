@@ -9,7 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { jobService, Job } from '../services/job.service';
 import JobCard from '../components/JobCard';
 
-type TabType = 'posted' | 'accepted' | 'all';
+type TabType = 'posted' | 'assigned' | 'all';
 
 export default function MyJobsPage() {
   const navigate = useNavigate();
@@ -45,21 +45,23 @@ export default function MyJobsPage() {
     }
   };
 
+  const userId = Number(user?.id);
+  
   const filteredJobs = jobs.filter(job => {
     if (activeTab === 'all') return true;
-    if (activeTab === 'posted') return job.client_id === user?.id;
-    if (activeTab === 'accepted') return job.runner_id === user?.id;
+    if (activeTab === 'posted') return job.clientId === userId;
+    if (activeTab === 'assigned') return job.runnerId === userId;
     return true;
   });
 
-  const postedCount = jobs.filter(j => j.client_id === user?.id).length;
-  const acceptedCount = jobs.filter(j => j.runner_id === user?.id).length;
+  const postedCount = jobs.filter(j => j.clientId === userId).length;
+  const assignedCount = jobs.filter(j => j.runnerId === userId).length;
 
   const stats = {
     total: jobs.length,
     open: jobs.filter(j => j.status === 'open').length,
-    in_progress: jobs.filter(j => j.status === 'in_progress' || j.status === 'accepted').length,
-    completed: jobs.filter(j => j.status === 'completed' || j.status === 'paid').length,
+    in_progress: jobs.filter(j => j.status === 'in_progress' || j.status === 'assigned').length,
+    completed: jobs.filter(j => j.status === 'completed').length,
   };
 
   return (
@@ -71,7 +73,7 @@ export default function MyJobsPage() {
             My Jobs
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Manage your posted and accepted jobs
+            Manage your posted and assigned jobs
           </p>
         </div>
         <div className="mt-4 flex md:mt-0 md:ml-4">
@@ -191,16 +193,16 @@ export default function MyJobsPage() {
           </button>
           
           <button
-            onClick={() => setActiveTab('accepted')}
+            onClick={() => setActiveTab('assigned')}
             className={`${
-              activeTab === 'accepted'
+              activeTab === 'assigned'
                 ? 'border-indigo-500 text-indigo-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
           >
-            Accepted by Me
+            Assigned to Me
             <span className="ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium bg-gray-100 text-gray-900">
-              {acceptedCount}
+              {assignedCount}
             </span>
           </button>
         </nav>
@@ -240,7 +242,7 @@ export default function MyJobsPage() {
           <h3 className="mt-2 text-sm font-medium text-gray-900">No jobs found</h3>
           <p className="mt-1 text-sm text-gray-500">
             {activeTab === 'posted' && "You haven't posted any jobs yet."}
-            {activeTab === 'accepted' && "You haven't accepted any jobs yet."}
+            {activeTab === 'assigned' && "You haven't been assigned any jobs yet."}
             {activeTab === 'all' && "You don't have any jobs yet."}
           </p>
           <div className="mt-6">

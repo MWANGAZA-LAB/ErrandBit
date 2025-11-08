@@ -9,7 +9,12 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useAuth } from '../contexts/AuthContext';
 import { jobService, Job } from '../services/job.service';
 import { paymentService, LightningInvoice } from '../services/payment.service';
-import toast from 'react-hot-toast';
+import { formatCentsAsUsd, centsToUsd } from '../utils/currency';
+// import toast from 'react-hot-toast'; // TODO: Install package
+const toast = {
+  success: (msg: string) => alert(msg),
+  error: (msg: string) => alert(msg)
+};
 
 export default function PaymentPage() {
   const { id } = useParams<{ id: string }>();
@@ -65,7 +70,7 @@ export default function PaymentPage() {
       }
 
       // Check if user is the client
-      if (data.client_id !== user?.id) {
+      if (data.clientId !== Number(user?.id)) {
         setError('Only the job client can make payment');
         return;
       }
@@ -80,13 +85,13 @@ export default function PaymentPage() {
   };
 
   const createInvoice = async () => {
-    if (!id || !job || !job.agreed_price_usd) return;
+    if (!id || !job) return;
 
     setCreating(true);
     setError('');
 
     try {
-      const invoiceData = await paymentService.createInvoice(id, job.agreed_price_usd);
+      const invoiceData = await paymentService.createInvoice(id, job.priceCents);
       setInvoice(invoiceData);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to create invoice');
@@ -183,7 +188,7 @@ export default function PaymentPage() {
           <div className="flex justify-between">
             <span className="text-gray-600">Amount:</span>
             <span className="font-medium text-gray-900">
-              ${job.agreed_price_usd?.toFixed(2) || job.budget_max_usd.toFixed(2)}
+              {formatCentsAsUsd(job.priceCents)}
             </span>
           </div>
           

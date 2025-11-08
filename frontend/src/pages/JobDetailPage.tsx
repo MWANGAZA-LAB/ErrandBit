@@ -7,24 +7,19 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { jobService, Job } from '../services/job.service';
+import { formatCentsAsUsd } from '../utils/currency';
 
-const STATUS_COLORS = {
+const STATUS_COLORS: Record<string, string> = {
   open: 'bg-green-100 text-green-800',
-  accepted: 'bg-blue-100 text-blue-800',
+  pending: 'bg-blue-100 text-blue-800',
+  assigned: 'bg-blue-100 text-blue-800',
   in_progress: 'bg-yellow-100 text-yellow-800',
   completed: 'bg-purple-100 text-purple-800',
-  paid: 'bg-gray-100 text-gray-800',
   cancelled: 'bg-red-100 text-red-800'
 };
 
-const CATEGORY_ICONS = {
-  delivery: '📦',
-  shopping: '🛒',
-  cleaning: '🧹',
-  moving: '📦',
-  handyman: '🔧',
-  other: '💼'
-};
+// Category removed from new interface
+const JOB_ICON = '💼';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -37,11 +32,11 @@ export default function JobDetailPage() {
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
-    /* AUTHENTICATION BYPASSED - Commented out for testing`n
-    if (!isAuthenticated) {`n
-      navigate('/login');`n
-      return;`n
-    }`n
+    /* AUTHENTICATION BYPASSED - Commented out for testing
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     */
 
     if (id) {
@@ -72,10 +67,10 @@ export default function JobDetailPage() {
     setError('');
 
     try {
-      const updatedJob = await jobService.acceptJob(id, user.id);
+      const updatedJob = await jobService.assignJob(id);
       setJob(updatedJob);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to accept job');
+      setError(err.response?.data?.error || 'Failed to assign job');
     } finally {
       setActionLoading(false);
     }
@@ -159,10 +154,10 @@ export default function JobDetailPage() {
 
   if (!job) return null;
 
-  const isClient = user?.id === job.client_id;
-  const isRunner = user?.id === job.runner_id;
+  const userId = Number(user?.id);
+  const isClient = userId === job.clientId;
+  const isRunner = userId === job.runnerId;
   const statusColor = STATUS_COLORS[job.status] || 'bg-gray-100 text-gray-800';
-  const categoryIcon = CATEGORY_ICONS[job.category as keyof typeof CATEGORY_ICONS] || '💼';
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -177,10 +172,9 @@ export default function JobDetailPage() {
         
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
-            <span className="text-4xl">{categoryIcon}</span>
+            <span className="text-4xl">{JOB_ICON}</span>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{job.title}</h1>
-              <p className="text-sm text-gray-500 capitalize mt-1">{job.category}</p>
             </div>
           </div>
           <span className={`px-4 py-2 rounded-full text-sm font-medium ${statusColor}`}>
@@ -209,71 +203,46 @@ export default function JobDetailPage() {
           <h2 className="text-lg font-medium text-gray-900 mb-4">Locations</h2>
           
           <div className="space-y-4">
-            {/* Pickup */}
+            {/* Job Location */}
             <div>
-              <div className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                <svg className="h-5 w-5 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
-                Pickup Location
-              </div>
-              <p className="text-gray-600 ml-7">{job.pickup_address}</p>
-              <p className="text-xs text-gray-400 ml-7">
-                {job.pickup_lat.toFixed(6)}, {job.pickup_lng.toFixed(6)}
-              </p>
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Job Location</h3>
+              <p className="text-sm text-gray-600">{job.address}</p>
+              {job.location.lat && job.location.lng && (
+                <a
+                  href={`https://www.google.com/maps?q=${job.location.lat},${job.location.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:text-blue-500"
+                >
+                  View on Google Maps
+                </a>
+              )}
             </div>
-
-            {/* Dropoff */}
-            {job.dropoff_address && (
-              <div>
-                <div className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                  <svg className="h-5 w-5 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                  Dropoff Location
-                </div>
-                <p className="text-gray-600 ml-7">{job.dropoff_address}</p>
-                <p className="text-xs text-gray-400 ml-7">
-                  {job.dropoff_lat?.toFixed(6)}, {job.dropoff_lng?.toFixed(6)}
-                </p>
-              </div>
-            )}
           </div>
         </div>
 
         {/* Budget */}
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-lg font-medium text-gray-900 mb-2">Payment</h2>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-3xl font-bold text-indigo-600">
-              ${job.budget_max_usd.toFixed(2)}
-            </span>
-            <span className="text-sm text-gray-500">maximum budget</span>
-          </div>
-          {job.agreed_price_usd && (
-            <div className="mt-2 flex items-baseline space-x-2">
-              <span className="text-xl font-semibold text-green-600">
-                ${job.agreed_price_usd.toFixed(2)}
-              </span>
-              <span className="text-sm text-gray-500">agreed price</span>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-500">Price</span>
+              <span className="text-sm font-medium text-indigo-600">{formatCentsAsUsd(job.priceCents)}</span>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Timestamps */}
         <div className="p-6 bg-gray-50">
           <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-500">Posted:</span>
-              <span className="ml-2 text-gray-900">
-                {new Date(job.created_at).toLocaleString()}
-              </span>
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-500">Posted</span>
+              <span className="text-sm text-gray-900">{new Date(job.createdAt).toLocaleDateString()}</span>
             </div>
-            <div>
-              <span className="text-gray-500">Updated:</span>
-              <span className="ml-2 text-gray-900">
-                {new Date(job.updated_at).toLocaleString()}
-              </span>
+            
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-500">Last Updated</span>
+              <span className="text-sm text-gray-900">{new Date(job.updatedAt).toLocaleDateString()}</span>
             </div>
           </div>
         </div>
@@ -282,7 +251,7 @@ export default function JobDetailPage() {
       {/* Actions */}
       <div className="mt-6 flex justify-end space-x-3">
         {/* Open job - Runner can accept */}
-        {job.status === 'open' && !isClient && (
+        {!isClient && (job.status === 'open' || job.status === 'pending') && (
           <button
             onClick={handleAcceptJob}
             disabled={actionLoading}
@@ -293,7 +262,7 @@ export default function JobDetailPage() {
         )}
 
         {/* Accepted job - Runner can start */}
-        {job.status === 'accepted' && isRunner && (
+        {isRunner && (job.status === 'assigned' || job.status === 'pending') && (
           <button
             onClick={handleStartJob}
             disabled={actionLoading}
@@ -325,7 +294,7 @@ export default function JobDetailPage() {
         )}
 
         {/* Cancel button */}
-        {(job.status === 'open' || job.status === 'accepted' || job.status === 'in_progress') && (isClient || isRunner) && (
+        {(job.status === 'open' || job.status === 'assigned' || job.status === 'in_progress') && (isClient || isRunner) && (
           <button
             onClick={handleCancelJob}
             disabled={actionLoading}

@@ -7,15 +7,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jobService, CreateJobInput } from '../services/job.service';
 import LocationPicker from '../components/LocationPicker';
+import { usdToCents } from '../utils/currency';
 
-const CATEGORIES = [
-  { value: 'delivery', label: 'Delivery' },
-  { value: 'shopping', label: 'Shopping' },
-  { value: 'cleaning', label: 'Cleaning' },
-  { value: 'moving', label: 'Moving' },
-  { value: 'handyman', label: 'Handyman' },
-  { value: 'other', label: 'Other' }
-];
+// Category removed from new interface
 
 export default function CreateJob() {
   const navigate = useNavigate();
@@ -25,17 +19,31 @@ export default function CreateJob() {
   const [formData, setFormData] = useState<CreateJobInput>({
     title: '',
     description: '',
-    category: 'delivery',
-    budget_max_usd: 10
+    priceCents: 1000, // $10.00
+    location: {
+      lat: 0,
+      lng: 0,
+      address: ''
+    },
+    deadline: ''
   });
+  
+  const [priceUsd, setPriceUsd] = useState<number>(10);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name.includes('lat') || name.includes('lng') || name === 'budget_max_usd'
-        ? parseFloat(value) || 0
-        : value
+      [name]: value
+    }));
+  };
+  
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const usd = parseFloat(e.target.value) || 0;
+    setPriceUsd(usd);
+    setFormData(prev => ({
+      ...prev,
+      priceCents: usdToCents(usd)
     }));
   };
 
@@ -83,26 +91,7 @@ export default function CreateJob() {
             />
           </div>
 
-          {/* Category */}
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-              Category
-            </label>
-            <select
-              name="category"
-              id="category"
-              required
-              value={formData.category}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              {CATEGORIES.map(cat => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Category removed from new interface */}
 
           {/* Description */}
           <div>
@@ -121,47 +110,30 @@ export default function CreateJob() {
             />
           </div>
 
-          {/* Pickup Location */}
+          {/* Job Location */}
           <div className="border-t border-gray-200 pt-6">
             <LocationPicker
               onLocationSelect={(lat, lng, address) => {
                 setFormData(prev => ({
                   ...prev,
-                  pickup_lat: lat,
-                  pickup_lng: lng,
-                  pickup_address: address,
-                  use_current_location: true
+                  location: {
+                    lat,
+                    lng,
+                    address: address || ''
+                  }
                 }));
               }}
-              initialLat={formData.pickup_lat}
-              initialLng={formData.pickup_lng}
-              label="Pickup Location"
+              initialLat={formData.location.lat}
+              initialLng={formData.location.lng}
+              label="Job Location"
               required
             />
           </div>
 
-          {/* Dropoff Location (Optional) */}
+          {/* Price */}
           <div className="border-t border-gray-200 pt-6">
-            <LocationPicker
-              onLocationSelect={(lat, lng, address) => {
-                setFormData(prev => ({
-                  ...prev,
-                  dropoff_lat: lat,
-                  dropoff_lng: lng,
-                  dropoff_address: address
-                }));
-              }}
-              initialLat={formData.dropoff_lat}
-              initialLng={formData.dropoff_lng}
-              label="Dropoff Location (Optional)"
-              required={false}
-            />
-          </div>
-
-          {/* Budget */}
-          <div className="border-t border-gray-200 pt-6">
-            <label htmlFor="budget_max_usd" className="block text-sm font-medium text-gray-700">
-              Maximum Budget (USD)
+            <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+              Job Price (USD)
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -169,15 +141,15 @@ export default function CreateJob() {
               </div>
               <input
                 type="number"
-                name="budget_max_usd"
-                id="budget_max_usd"
+                name="price"
+                id="price"
                 required
                 min="1"
                 step="0.01"
-                value={formData.budget_max_usd}
-                onChange={handleChange}
+                value={priceUsd}
+                onChange={handlePriceChange}
                 className="block w-full pl-7 pr-12 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="0.00"
+                placeholder="10.00"
               />
             </div>
           </div>
