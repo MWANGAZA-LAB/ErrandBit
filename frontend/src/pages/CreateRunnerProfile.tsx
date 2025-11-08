@@ -7,19 +7,24 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { runnerService, CreateRunnerInput } from '../services/runner.service';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast'; // TODO: Install react-hot-toast
+const toast = {
+  error: (msg: string) => alert(msg),
+  success: (msg: string) => alert(msg)
+};
 
-const SKILL_OPTIONS = [
-  'Delivery',
-  'Shopping',
-  'Cleaning',
-  'Moving',
-  'Handyman',
-  'Pet Care',
-  'Gardening',
-  'Tutoring',
-  'Tech Support',
-  'Other'
+const TAG_OPTIONS = [
+  'delivery',
+  'shopping',
+  'cleaning',
+  'moving',
+  'handyman',
+  'petcare',
+  'gardening',
+  'tutoring',
+  'techsupport',
+  'errands',
+  'other'
 ];
 
 export default function CreateRunnerProfile() {
@@ -29,10 +34,15 @@ export default function CreateRunnerProfile() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateRunnerInput>({
     bio: '',
-    skills: [],
-    hourly_rate_usd: undefined,
-    current_lat: undefined,
-    current_lng: undefined
+    tags: [],
+    hourlyRate: undefined,
+    serviceRadius: 10,
+    location: {
+      lat: 0,
+      lng: 0,
+      address: ''
+    },
+    available: true
   });
 
   useEffect(() => {
@@ -49,8 +59,11 @@ export default function CreateRunnerProfile() {
         (position) => {
           setFormData(prev => ({
             ...prev,
-            current_lat: position.coords.latitude,
-            current_lng: position.coords.longitude
+            location: {
+              ...prev.location,
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            }
           }));
         },
         (error) => {
@@ -62,26 +75,33 @@ export default function CreateRunnerProfile() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'hourly_rate_usd' ? parseFloat(value) || undefined : value
-    }));
+    if (name === 'hourlyRate' || name === 'serviceRadius') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: parseFloat(value) || undefined
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
-  const handleSkillToggle = (skill: string) => {
+  const handleTagToggle = (tag: string) => {
     setFormData(prev => ({
       ...prev,
-      skills: prev.skills.includes(skill)
-        ? prev.skills.filter(s => s !== skill)
-        : [...prev.skills, skill]
+      tags: prev.tags.includes(tag)
+        ? prev.tags.filter((t: string) => t !== tag)
+        : [...prev.tags, tag]
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (formData.skills.length === 0) {
-      toast.error('Please select at least one skill');
+    if (formData.tags.length === 0) {
+      toast.error('Please select at least one tag');
       return;
     }
 
@@ -133,27 +153,27 @@ export default function CreateRunnerProfile() {
             />
           </div>
 
-          {/* Skills */}
+          {/* Tags */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Skills
+              Service Tags
             </label>
             <p className="text-xs text-gray-500 mb-3">
               Select all services you can provide
             </p>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {SKILL_OPTIONS.map(skill => (
+              {TAG_OPTIONS.map((tag: string) => (
                 <button
-                  key={skill}
+                  key={tag}
                   type="button"
-                  onClick={() => handleSkillToggle(skill)}
+                  onClick={() => handleTagToggle(tag)}
                   className={`${
-                    formData.skills.includes(skill)
+                    formData.tags.includes(tag)
                       ? 'bg-indigo-600 text-white border-indigo-600'
                       : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  } px-4 py-2 border rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors`}
+                  } px-4 py-2 border rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors capitalize`}
                 >
-                  {skill}
+                  {tag}
                 </button>
               ))}
             </div>
@@ -161,7 +181,7 @@ export default function CreateRunnerProfile() {
 
           {/* Hourly Rate */}
           <div>
-            <label htmlFor="hourly_rate_usd" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="hourlyRate" className="block text-sm font-medium text-gray-700">
               Hourly Rate (Optional)
             </label>
             <p className="mt-1 text-xs text-gray-500">
@@ -173,11 +193,11 @@ export default function CreateRunnerProfile() {
               </div>
               <input
                 type="number"
-                name="hourly_rate_usd"
-                id="hourly_rate_usd"
+                name="hourlyRate"
+                id="hourlyRate"
                 min="1"
                 step="0.01"
-                value={formData.hourly_rate_usd || ''}
+                value={formData.hourlyRate || ''}
                 onChange={handleChange}
                 className="block w-full pl-7 pr-12 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="25.00"
@@ -188,40 +208,57 @@ export default function CreateRunnerProfile() {
             </div>
           </div>
 
+          {/* Service Radius */}
+          <div>
+            <label htmlFor="serviceRadius" className="block text-sm font-medium text-gray-700">
+              Service Radius (km)
+            </label>
+            <p className="mt-1 text-xs text-gray-500">
+              How far are you willing to travel for jobs?
+            </p>
+            <input
+              type="number"
+              name="serviceRadius"
+              id="serviceRadius"
+              min="1"
+              max="100"
+              value={formData.serviceRadius}
+              onChange={handleChange}
+              className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="10"
+            />
+          </div>
+
           {/* Location */}
           <div className="border-t border-gray-200 pt-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Current Location</h3>
             
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="current_lat" className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700">
                   Latitude
                 </label>
                 <input
                   type="number"
-                  name="current_lat"
-                  id="current_lat"
                   step="any"
-                  value={formData.current_lat || ''}
-                  onChange={handleChange}
+                  value={formData.location.lat || ''}
+                  readOnly
                   placeholder="40.7128"
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-50 sm:text-sm"
                 />
               </div>
               
               <div>
-                <label htmlFor="current_lng" className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700">
                   Longitude
                 </label>
                 <input
                   type="number"
-                  name="current_lng"
-                  id="current_lng"
                   step="any"
-                  value={formData.current_lng || ''}
-                  onChange={handleChange}
+                  value={formData.location.lng || ''}
+                  readOnly
                   placeholder="-74.0060"
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-50 sm:text-sm"
                 />
               </div>
             </div>
@@ -234,8 +271,11 @@ export default function CreateRunnerProfile() {
                     (position) => {
                       setFormData(prev => ({
                         ...prev,
-                        current_lat: position.coords.latitude,
-                        current_lng: position.coords.longitude
+                        location: {
+                          ...prev.location,
+                          lat: position.coords.latitude,
+                          lng: position.coords.longitude
+                        }
                       }));
                       toast.success('Location updated');
                     },

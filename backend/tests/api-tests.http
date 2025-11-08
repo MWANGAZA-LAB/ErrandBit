@@ -1,0 +1,270 @@
+### ErrandBit API Tests
+### Use with REST Client VS Code extension or similar HTTP client
+### Base URL: http://localhost:4000
+
+@baseUrl = http://localhost:4000
+@token = 
+
+###############################################################################
+# AUTHENTICATION
+###############################################################################
+
+### 1. Register new user
+POST {{baseUrl}}/auth-simple/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "phone": "+1234567899",
+  "password": "password123"
+}
+
+### 2. Login
+# @name login
+POST {{baseUrl}}/auth-simple/login
+Content-Type: application/json
+
+{
+  "username": "alice_client",
+  "password": "password123"
+}
+
+### 3. Get current user profile
+GET {{baseUrl}}/auth-simple/me
+Authorization: Bearer {{login.response.body.token}}
+
+###############################################################################
+# JOBS API
+###############################################################################
+
+### 4. Create a new job
+# @name createJob
+POST {{baseUrl}}/api/jobs
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "Test Delivery Job",
+  "description": "Pick up package from store and deliver to address",
+  "priceCents": 2000,
+  "location": {
+    "lat": 40.7128,
+    "lng": -74.0060,
+    "address": "123 Test St, New York, NY"
+  },
+  "deadline": "2025-11-10T18:00:00Z"
+}
+
+### 5. Get all jobs
+GET {{baseUrl}}/api/jobs
+Authorization: Bearer {{login.response.body.token}}
+
+### 6. Get job by ID
+GET {{baseUrl}}/api/jobs/1
+Authorization: Bearer {{login.response.body.token}}
+
+### 7. Search jobs by location
+GET {{baseUrl}}/api/jobs/search?lat=40.7128&lng=-74.0060&radiusKm=10&status=open
+Authorization: Bearer {{login.response.body.token}}
+
+### 8. Get my jobs (created by me)
+GET {{baseUrl}}/api/jobs/my-jobs
+Authorization: Bearer {{login.response.body.token}}
+
+### 9. Get assigned jobs (assigned to me as runner)
+GET {{baseUrl}}/api/jobs/assigned
+Authorization: Bearer {{login.response.body.token}}
+
+### 10. Update job
+PATCH {{baseUrl}}/api/jobs/1
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "Updated Job Title",
+  "description": "Updated description",
+  "priceCents": 2500
+}
+
+### 11. Assign runner to job
+POST {{baseUrl}}/api/jobs/2/assign
+Authorization: Bearer {{login.response.body.token}}
+
+### 12. Complete job
+POST {{baseUrl}}/api/jobs/2/complete
+Authorization: Bearer {{login.response.body.token}}
+
+### 13. Cancel job
+POST {{baseUrl}}/api/jobs/1/cancel
+Authorization: Bearer {{login.response.body.token}}
+
+### 14. Delete job
+DELETE {{baseUrl}}/api/jobs/1
+Authorization: Bearer {{login.response.body.token}}
+
+###############################################################################
+# RUNNERS API
+###############################################################################
+
+### 15. Create runner profile
+# @name createRunner
+POST {{baseUrl}}/api/runners
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "bio": "Experienced delivery runner",
+  "hourlyRate": 25,
+  "serviceRadius": 15,
+  "tags": ["delivery", "shopping", "errands"],
+  "location": {
+    "lat": 40.7128,
+    "lng": -74.0060,
+    "address": "New York, NY"
+  },
+  "available": true
+}
+
+### 16. Get all runners
+GET {{baseUrl}}/api/runners
+Authorization: Bearer {{login.response.body.token}}
+
+### 17. Get runner by ID
+GET {{baseUrl}}/api/runners/1
+Authorization: Bearer {{login.response.body.token}}
+
+### 18. Get my runner profile
+GET {{baseUrl}}/api/runners/me
+Authorization: Bearer {{login.response.body.token}}
+
+### 19. Search runners
+GET {{baseUrl}}/api/runners/search?tags=delivery&minRating=4&lat=40.7128&lng=-74.0060&radius=10
+Authorization: Bearer {{login.response.body.token}}
+
+### 20. Update runner profile
+PATCH {{baseUrl}}/api/runners/1
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "bio": "Updated bio",
+  "hourlyRate": 30,
+  "available": true
+}
+
+### 21. Update runner statistics
+PATCH {{baseUrl}}/api/runners/1/stats
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "avgRating": 4.8,
+  "totalJobs": 25,
+  "completionRate": 95.5
+}
+
+### 22. Delete runner profile
+DELETE {{baseUrl}}/api/runners/1
+Authorization: Bearer {{login.response.body.token}}
+
+###############################################################################
+# PAYMENTS API
+###############################################################################
+
+### 23. Create payment
+# @name createPayment
+POST {{baseUrl}}/api/payments
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "jobId": 1,
+  "amountSats": 20000
+}
+
+### 24. Get all payments
+GET {{baseUrl}}/api/payments
+Authorization: Bearer {{login.response.body.token}}
+
+### 25. Get payment by ID
+GET {{baseUrl}}/api/payments/1
+Authorization: Bearer {{login.response.body.token}}
+
+### 26. Get payment by job ID
+GET {{baseUrl}}/api/payments/job/1
+Authorization: Bearer {{login.response.body.token}}
+
+### 27. Get payment by hash
+GET {{baseUrl}}/api/payments/hash/hash_abc123
+Authorization: Bearer {{login.response.body.token}}
+
+### 28. Confirm payment
+POST {{baseUrl}}/api/payments/1/confirm
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "preimage": "preimage_xyz789"
+}
+
+### 29. Get payment statistics
+GET {{baseUrl}}/api/payments/stats
+Authorization: Bearer {{login.response.body.token}}
+
+###############################################################################
+# REVIEWS API
+###############################################################################
+
+### 30. Create review
+# @name createReview
+POST {{baseUrl}}/api/reviews
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "jobId": 3,
+  "rating": 5,
+  "comment": "Excellent service! Very professional and fast."
+}
+
+### 31. Get review by ID
+GET {{baseUrl}}/api/reviews/1
+Authorization: Bearer {{login.response.body.token}}
+
+### 32. Get review by job ID
+GET {{baseUrl}}/api/reviews/job/3
+Authorization: Bearer {{login.response.body.token}}
+
+### 33. Get reviews for runner
+GET {{baseUrl}}/api/reviews/runner/2?limit=10&offset=0
+Authorization: Bearer {{login.response.body.token}}
+
+### 34. Get reviews by reviewer
+GET {{baseUrl}}/api/reviews/reviewer/1?limit=10&offset=0
+Authorization: Bearer {{login.response.body.token}}
+
+### 35. Get runner rating statistics
+GET {{baseUrl}}/api/reviews/runner/2/stats
+Authorization: Bearer {{login.response.body.token}}
+
+### 36. Update review
+PATCH {{baseUrl}}/api/reviews/1
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "comment": "Updated review comment"
+}
+
+### 37. Delete review
+DELETE {{baseUrl}}/api/reviews/1
+Authorization: Bearer {{login.response.body.token}}
+
+###############################################################################
+# HEALTH CHECK
+###############################################################################
+
+### 38. Health check
+GET {{baseUrl}}/health

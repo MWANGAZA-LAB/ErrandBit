@@ -7,43 +7,54 @@ import axios from 'axios';
 import { authService } from './auth.service';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_BASE = `${API_URL}/api`;
 
 export interface RunnerProfile {
-  id: string;
-  user_id: string;
+  id: number;
+  userId: number;
   bio: string;
-  skills: string[];
-  hourly_rate_usd?: number;
+  tags: string[];
+  hourlyRate?: number;
+  serviceRadius: number;
   available: boolean;
-  current_lat?: number;
-  current_lng?: number;
-  total_jobs: number;
-  completed_jobs: number;
-  average_rating?: number;
-  total_reviews: number;
-  created_at: string;
-  updated_at: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  address?: string;
+  avgRating?: number;
+  totalJobs: number;
+  completionRate?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateRunnerInput {
   bio: string;
-  skills: string[];
-  hourly_rate_usd?: number;
-  current_lat?: number;
-  current_lng?: number;
+  tags: string[];
+  hourlyRate?: number;
+  serviceRadius: number;
+  location: {
+    lat: number;
+    lng: number;
+    address?: string;
+  };
+  available?: boolean;
 }
 
 export interface UpdateRunnerInput {
   bio?: string;
-  skills?: string[];
-  hourly_rate_usd?: number;
+  tags?: string[];
+  hourlyRate?: number;
+  serviceRadius?: number;
   available?: boolean;
+  location?: {
+    lat: number;
+    lng: number;
+    address?: string;
+  };
 }
 
-export interface UpdateLocationInput {
-  lat: number;
-  lng: number;
-}
 
 class RunnerService {
   private getHeaders() {
@@ -55,55 +66,55 @@ class RunnerService {
   }
 
   async createProfile(data: CreateRunnerInput): Promise<RunnerProfile> {
-    const response = await axios.post(`${API_URL}/runners`, data, {
+    const response = await axios.post(`${API_BASE}/runners`, data, {
       headers: this.getHeaders()
     });
-    return response.data.runner;
+    return response.data.data || response.data.runner;
   }
 
   async getMyProfile(): Promise<RunnerProfile> {
-    const response = await axios.get(`${API_URL}/runners/me`, {
+    const response = await axios.get(`${API_BASE}/runners/me`, {
       headers: this.getHeaders()
     });
-    return response.data.runner;
+    return response.data.data || response.data.runner;
   }
 
-  async getProfileById(id: string): Promise<RunnerProfile> {
-    const response = await axios.get(`${API_URL}/runners/${id}`, {
+  async getProfileById(id: number | string): Promise<RunnerProfile> {
+    const response = await axios.get(`${API_BASE}/runners/${id}`, {
       headers: this.getHeaders()
     });
-    return response.data.runner;
+    return response.data.data || response.data.runner;
   }
 
-  async updateProfile(id: string, data: UpdateRunnerInput): Promise<RunnerProfile> {
-    const response = await axios.patch(`${API_URL}/runners/${id}`, data, {
+  async updateProfile(id: number | string, data: UpdateRunnerInput): Promise<RunnerProfile> {
+    const response = await axios.patch(`${API_BASE}/runners/${id}`, data, {
       headers: this.getHeaders()
     });
-    return response.data.runner;
+    return response.data.data || response.data.runner;
   }
 
-  async updateLocation(id: string, data: UpdateLocationInput): Promise<RunnerProfile> {
-    const response = await axios.patch(`${API_URL}/runners/${id}/location`, data, {
+  async updateLocation(id: number | string, location: { lat: number; lng: number; address?: string }): Promise<RunnerProfile> {
+    const response = await axios.patch(`${API_BASE}/runners/${id}`, { location }, {
       headers: this.getHeaders()
     });
-    return response.data.runner;
+    return response.data.data || response.data.runner;
   }
 
-  async toggleAvailability(id: string, available: boolean): Promise<RunnerProfile> {
+  async toggleAvailability(id: number | string, available: boolean): Promise<RunnerProfile> {
     const response = await axios.patch(
-      `${API_URL}/runners/${id}/availability`,
+      `${API_BASE}/runners/${id}`,
       { available },
       { headers: this.getHeaders() }
     );
-    return response.data.runner;
+    return response.data.data || response.data.runner;
   }
 
-  async searchNearby(lat: number, lng: number, radius_km: number = 10): Promise<RunnerProfile[]> {
-    const response = await axios.get(`${API_URL}/runners/search`, {
+  async searchNearby(lat: number, lng: number, radius: number = 10): Promise<RunnerProfile[]> {
+    const response = await axios.get(`${API_BASE}/runners/search`, {
       headers: this.getHeaders(),
-      params: { lat, lng, radius_km }
+      params: { lat, lng, radius }
     });
-    return response.data.runners;
+    return response.data.data || response.data.runners || [];
   }
 }
 

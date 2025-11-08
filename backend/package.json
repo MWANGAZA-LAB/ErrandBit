@@ -10,6 +10,7 @@
     "build:watch": "tsc --watch",
     "type-check": "tsc --noEmit",
     "migrate": "tsx scripts/migrate.ts",
+    "seed": "tsx --env-file=.env scripts/seed-data.ts",
     "verify-db": "tsx db/verify-schema.ts",
     "test": "jest",
     "test:watch": "jest --watch",

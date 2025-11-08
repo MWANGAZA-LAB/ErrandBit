@@ -15,12 +15,12 @@ $envContent = $envExample -replace 'your-super-secret-jwt-key-change-this-in-pro
 # Write to .env file
 $envContent | Set-Content "backend\.env"
 
-Write-Host "✅ Environment file created at backend\.env" -ForegroundColor Green
-Write-Host "✅ JWT_SECRET has been set to a secure random value" -ForegroundColor Green
+Write-Host "Environment file created at backend\.env" -ForegroundColor Green
+Write-Host "JWT_SECRET has been set to a secure random value" -ForegroundColor Green
 Write-Host ""
-Write-Host "⚠️  IMPORTANT: Update the following in backend\.env:" -ForegroundColor Yellow
+Write-Host "IMPORTANT: Update the following in backend\.env:" -ForegroundColor Yellow
 Write-Host "   - DATABASE_URL (if different from default)" -ForegroundColor Yellow
 Write-Host "   - TWILIO credentials (if using SMS verification)" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "📝 Your JWT_SECRET: $jwtSecret" -ForegroundColor Cyan
+Write-Host "Your JWT_SECRET: $jwtSecret" -ForegroundColor Cyan
 Write-Host "   (This has been saved to backend\.env)" -ForegroundColor Gray

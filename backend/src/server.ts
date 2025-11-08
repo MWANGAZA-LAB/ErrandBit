@@ -22,6 +22,12 @@ import paymentsRouter from './routes/payments.routes.js'; // TypeScript
 import reviewsRouter from './routes/reviews.routes.js'; // TypeScript
 import messagesRouter from './routes/messages.js';
 
+// Controller-based routes (new clean architecture)
+import jobsControllerRouter from './routes/jobs.controller.routes.js';
+import runnersControllerRouter from './routes/runners.controller.routes.js';
+import paymentsControllerRouter from './routes/payments.controller.routes.js';
+import reviewsControllerRouter from './routes/reviews.controller.routes.js';
+
 // TypeScript modules
 import { notFound } from './utils/error.js';
 import { sanitizeError, sanitizeBody } from './middleware/sanitize.js';
@@ -64,11 +70,19 @@ app.use('/health', healthRouter);
 app.use('/auth-simple', authLimiter, authSimpleRefactoredRouter); // Refactored auth (clean architecture)
 app.use('/auth', authLimiter, authSimpleRouter); // Simple auth (no OTP) - legacy
 app.use('/auth/otp', authLimiter, authRouter); // OTP auth (optional)
+
+// Legacy routes (will be deprecated)
 app.use('/runners', runnersRouter);
 app.use('/jobs', jobsRouter);
 app.use('/reviews', reviewsRouter);
 app.use('/messages', messagesRouter);
 app.use('/payments', paymentLimiter, paymentsRouter);
+
+// New controller-based routes (clean architecture)
+app.use('/api/jobs', jobsControllerRouter);
+app.use('/api/runners', runnersControllerRouter);
+app.use('/api/payments', paymentLimiter, paymentsControllerRouter);
+app.use('/api/reviews', reviewsControllerRouter);
 
 // Error handling - New centralized handlers
 app.use(notFoundHandler);
