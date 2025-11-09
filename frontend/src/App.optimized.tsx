@@ -42,6 +42,7 @@ export default function App() {
           Skip to main content
         </a>
 
+        {/* @ts-ignore - React 19 type compatibility */}
         <Toaster 
           position="top-right"
           toastOptions={{

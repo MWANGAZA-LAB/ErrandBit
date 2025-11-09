@@ -90,11 +90,13 @@ export default function LocationPicker({
         >
           {loading ? (
             <>
+              {/* @ts-ignore - React 19 type compatibility */}
               <Loader className="w-5 h-5 animate-spin" />
               <span>Detecting location...</span>
             </>
           ) : (
             <>
+              {/* @ts-ignore - React 19 type compatibility */}
               <Navigation className="w-5 h-5" />
               <span>Use Current Location</span>
             </>
@@ -107,6 +109,7 @@ export default function LocationPicker({
           className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           title="Pin location on map"
         >
+          {/* @ts-ignore - React 19 type compatibility */}
           <MapPin className="w-5 h-5 text-gray-600" />
         </button>
       </div>
@@ -115,6 +118,7 @@ export default function LocationPicker({
       {coordinates && !error && (
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
           <div className="flex items-start gap-3">
+            {/* @ts-ignore - React 19 type compatibility */}
             <MapPin className="w-5 h-5 text-green-600 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-medium text-green-900">
