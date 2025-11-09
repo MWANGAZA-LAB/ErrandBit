@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { jobService, Job } from '../services/job.service';
 import JobCard from '../components/JobCard';
+import { JobCardSkeleton } from '../components/LoadingSkeletons';
 
 type TabType = 'posted' | 'assigned' | 'all';
 
@@ -215,11 +216,12 @@ export default function MyJobsPage() {
         </div>
       )}
 
-      {/* Loading State */}
+      {/* Loading State with Skeletons */}
       {loading && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <p className="mt-2 text-sm text-gray-500">Loading jobs...</p>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <JobCardSkeleton key={i} />
+          ))}
         </div>
       )}
 

@@ -8,6 +8,8 @@
  * - Semantic HTML with proper ARIA labels
  * - Keyboard navigation support
  * - Screen reader optimizations
+ * 
+ * To use: Rename this file to JobCard.tsx
  */
 
 import { memo, useMemo } from 'react';

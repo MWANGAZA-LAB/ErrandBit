@@ -6,6 +6,8 @@
  * - Error boundaries for graceful error handling
  * - Suspense with loading states
  * - Better accessibility with skip links
+ * 
+ * To use: Rename this file to App.tsx
  */
 
 import { lazy, Suspense } from 'react';

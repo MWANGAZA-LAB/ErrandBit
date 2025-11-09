@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { runnerService, RunnerProfile } from '../services/runner.service';
+import { RunnerCardSkeleton } from '../components/LoadingSkeletons';
 import toast from 'react-hot-toast';
 
 export default function FindRunnersPage() {
@@ -127,11 +128,12 @@ export default function FindRunnersPage() {
         </div>
       </div>
 
-      {/* Loading State */}
+      {/* Loading State with Skeletons */}
       {loading && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <p className="mt-2 text-sm text-gray-500">Loading runners...</p>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <RunnerCardSkeleton key={i} />
+          ))}
         </div>
       )}
 
