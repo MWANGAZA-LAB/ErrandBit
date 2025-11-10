@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jobService, CreateJobInput } from '../services/job.service';
 import LocationPicker from '../components/LocationPicker';
-import { usdToCents } from '../utils/currency';
+import CurrencyInput from '../components/CurrencyInput';
 
 // Category removed from new interface
 
@@ -27,8 +27,6 @@ export default function CreateJob() {
     },
     deadline: ''
   });
-  
-  const [priceUsd, setPriceUsd] = useState<number>(10);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -38,12 +36,10 @@ export default function CreateJob() {
     }));
   };
   
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const usd = parseFloat(e.target.value) || 0;
-    setPriceUsd(usd);
+  const handlePriceChange = (cents: number) => {
     setFormData(prev => ({
       ...prev,
-      priceCents: usdToCents(usd)
+      priceCents: cents
     }));
   };
 
@@ -53,10 +49,30 @@ export default function CreateJob() {
     setLoading(true);
 
     try {
+      // Validate form data
+      if (!formData.title.trim()) {
+        throw new Error('Job title is required');
+      }
+      if (!formData.description.trim()) {
+        throw new Error('Job description is required');
+      }
+      if (formData.priceCents <= 0) {
+        throw new Error('Job price must be greater than 0');
+      }
+      if (!formData.location.address) {
+        throw new Error('Job location is required');
+      }
+      if (formData.location.lat === 0 && formData.location.lng === 0) {
+        throw new Error('Please select a valid location');
+      }
+
+      console.log('Submitting job:', formData); // Debug log
       const job = await jobService.createJob(formData);
       navigate(`/jobs/${job.id}`);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create job');
+      console.error('Job creation error:', err); // Debug log
+      const errorMessage = err.message || err.response?.data?.error || 'Failed to create job';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -130,28 +146,14 @@ export default function CreateJob() {
             />
           </div>
 
-          {/* Price */}
+          {/* Price with Multi-Currency Support */}
           <div className="border-t border-gray-200 pt-6">
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700">
-              Job Price (USD)
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="text-gray-500 sm:text-sm">$</span>
-              </div>
-              <input
-                type="number"
-                name="price"
-                id="price"
-                required
-                min="1"
-                step="0.01"
-                value={priceUsd}
-                onChange={handlePriceChange}
-                className="block w-full pl-7 pr-12 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="10.00"
-              />
-            </div>
+            <CurrencyInput
+              value={formData.priceCents}
+              onChange={handlePriceChange}
+              label="Job Price"
+              required
+            />
           </div>
 
           {/* Error Message */}

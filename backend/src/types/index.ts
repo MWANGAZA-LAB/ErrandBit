@@ -25,6 +25,11 @@ export interface User {
   created_at: Date | string;
   updated_at?: Date | string;
   is_anonymous?: boolean; // Flag for anonymous users
+  is_active?: boolean; // Account active status
+  is_banned?: boolean; // Account banned status
+  last_login_at?: Date | string | null; // Last login timestamp
+  failed_login_attempts?: number; // Failed login counter
+  account_locked_until?: Date | string | null; // Account lockout timestamp
 }
 
 export interface UserRegistration {

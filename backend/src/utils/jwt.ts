@@ -6,7 +6,27 @@
 import jwt from 'jsonwebtoken';
 import type { JWTPayload } from '../types/index.js';
 
-const JWT_SECRET: string = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+// Enforce JWT_SECRET is set - fail fast if missing
+// This prevents the application from starting with weak or missing secrets
+const JWT_SECRET: string = process.env.JWT_SECRET || '';
+
+if (!JWT_SECRET) {
+  throw new Error(
+    'SECURITY ERROR: JWT_SECRET environment variable must be set.\n' +
+    'Generate a secure secret with: openssl rand -base64 64\n' +
+    'Never use default or weak secrets in production.'
+  );
+}
+
+// Validate secret strength
+if (JWT_SECRET.length < 32) {
+  throw new Error(
+    'SECURITY ERROR: JWT_SECRET must be at least 32 characters long.\n' +
+    'Current length: ' + JWT_SECRET.length + '\n' +
+    'Generate a secure secret with: openssl rand -base64 64'
+  );
+}
+
 const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '7d';
 
 /**

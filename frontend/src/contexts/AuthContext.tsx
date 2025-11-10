@@ -22,30 +22,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // AUTHENTICATION BYPASSED - Auto-login with mock user
-    // TODO: Re-enable authentication later
-    const mockUser: User = {
-      id: 'dev-user-' + Date.now(),
-      phone: '+1234567890',
-      display_name: 'Dev User',
-      created_at: new Date().toISOString()
-    };
-    
-    // Store mock credentials
-    localStorage.setItem('token', 'dev-bypass-token-' + Date.now());
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    
-    setUser(mockUser);
-    setIsLoading(false);
-    
-    /* ORIGINAL CODE - COMMENTED OUT FOR LATER
-    // Check if user is already authenticated
+    // Check if user is already authenticated on mount
+    // This validates the stored token and loads user data
     if (authService.isAuthenticated()) {
       loadUser();
     } else {
       setIsLoading(false);
     }
-    */
   }, []);
 
   const loadUser = async () => {
