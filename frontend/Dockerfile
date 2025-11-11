@@ -8,8 +8,8 @@ WORKDIR /app
 # Copy package files for better layer caching
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --legacy-peer-deps
+# Install dependencies (no package-lock in workspace)
+RUN npm install --legacy-peer-deps
 
 # Stage 2: Build
 FROM node:20-alpine AS builder

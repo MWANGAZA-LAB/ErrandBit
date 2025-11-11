@@ -11,8 +11,8 @@ RUN apk add --no-cache libc6-compat python3 make g++
 # Copy package files for better layer caching
 COPY package*.json ./
 
-# Install ALL dependencies (including devDependencies for build)
-RUN npm ci --legacy-peer-deps
+# Install ALL dependencies (no package-lock in workspace)
+RUN npm install --legacy-peer-deps
 
 # Stage 2: Build
 FROM node:20-alpine AS builder
