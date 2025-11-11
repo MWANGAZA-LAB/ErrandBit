@@ -86,7 +86,7 @@ export async function authenticate(
     
     const result = await pool.query<User>(
       `SELECT 
-        id, role, phone, email, nostr_pubkey, created_at
+        id, role, phone_number as phone, NULL as email, NULL as nostr_pubkey, created_at
        FROM users 
        WHERE id = $1`,
       [decoded.userId]
@@ -145,7 +145,7 @@ export async function optionalAuth(
     
     if (pool) {
       const result = await pool.query<User>(
-        'SELECT id, role, phone, email, nostr_pubkey FROM users WHERE id = $1',
+        'SELECT id, role, phone_number as phone, NULL as email, NULL as nostr_pubkey FROM users WHERE id = $1',
         [decoded.userId]
       );
       

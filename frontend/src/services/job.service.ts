@@ -4,7 +4,7 @@
  */
 
 import axios from 'axios';
-import { authService } from './auth.service';
+import { simpleAuthService } from './simple-auth.service';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const API_BASE = `${API_URL}/api`;
@@ -15,9 +15,9 @@ export interface Job {
   runnerId?: number;
   title: string;
   description: string;
-  status: 'open' | 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'open' | 'accepted' | 'in_progress' | 'awaiting_payment' | 'payment_confirmed' | 'completed' | 'disputed' | 'cancelled';
   priceCents: number;
-  location: {
+  location?: {
     lat: number;
     lng: number;
   };
@@ -42,7 +42,7 @@ export interface CreateJobInput {
 
 class JobService {
   private getHeaders() {
-    const token = authService.getToken();
+    const token = simpleAuthService.getToken();
     return {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'

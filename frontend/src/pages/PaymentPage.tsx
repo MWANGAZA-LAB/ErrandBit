@@ -1,20 +1,17 @@
 /**
  * Payment Page
- * Display Lightning invoice and handle payment
+ * Display Lightning invoice and handle payment with multi-wallet support
  */
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { QRCodeSVG } from 'qrcode.react';
 import { useAuth } from '../contexts/AuthContext';
 import { jobService, Job } from '../services/job.service';
-import { paymentService, LightningInvoice } from '../services/payment.service';
-import { formatCentsAsUsd, centsToUsd } from '../utils/currency';
-// import toast from 'react-hot-toast'; // TODO: Install package
-const toast = {
-  success: (msg: string) => alert(msg),
-  error: (msg: string) => alert(msg)
-};
+import { formatCentsAsUsd } from '../utils/currency';
+import UniversalPayment from '../components/UniversalPayment';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export default function PaymentPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,36 +19,22 @@ export default function PaymentPage() {
   const { user, isAuthenticated } = useAuth();
   
   const [job, setJob] = useState<Job | null>(null);
-  const [invoice, setInvoice] = useState<LightningInvoice | null>(null);
+  const [invoice, setInvoice] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [checking, setChecking] = useState(false);
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
 
   useEffect(() => {
-    /* AUTHENTICATION BYPASSED - Commented out for testing`n
-    if (!isAuthenticated) {`n
-      navigate('/login');`n
-      return;`n
-    }`n
-    */
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
 
     if (id) {
       loadJob();
     }
   }, [id, isAuthenticated, navigate]);
-
-  useEffect(() => {
-    if (invoice && !checking) {
-      // Poll for payment status every 3 seconds
-      const interval = setInterval(() => {
-        checkPaymentStatus();
-      }, 3000);
-
-      return () => clearInterval(interval);
-    }
-  }, [invoice, checking]);
 
   const loadJob = async () => {
     if (!id) return;
@@ -64,7 +47,7 @@ export default function PaymentPage() {
       setJob(data);
 
       // Check if job is in correct status
-      if (data.status !== 'completed') {
+      if (data.status !== 'completed' && data.status !== 'awaiting_payment') {
         setError('Job must be completed before payment');
         return;
       }
@@ -74,9 +57,6 @@ export default function PaymentPage() {
         setError('Only the job client can make payment');
         return;
       }
-
-      // Note: Job status will be 'paid' after payment completes
-      // For now, we just check if it's completed
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load job');
     } finally {
@@ -91,8 +71,26 @@ export default function PaymentPage() {
     setError('');
 
     try {
-      const invoiceData = await paymentService.createInvoice(id, job.priceCents);
-      setInvoice(invoiceData);
+      // Convert cents to sats (rough conversion: 1 USD = 2000 sats)
+      const amountSats = Math.floor((job.priceCents / 100) * 2000);
+      
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `${API_URL}/api/payments/create-invoice-multi-wallet`,
+        {
+          jobId: Number(id),
+          amountSats
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      setInvoice(response.data.invoice);
+      setShowPayment(true);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to create invoice');
     } finally {
@@ -100,34 +98,32 @@ export default function PaymentPage() {
     }
   };
 
-  const checkPaymentStatus = async () => {
-    if (!invoice) return;
-
-    setChecking(true);
+  const handlePaymentSuccess = async (preimage: string, method: string) => {
+    if (!invoice || !id) return;
 
     try {
-      const status = await paymentService.getPaymentStatus(invoice.payment_hash);
-      
-      if (status.paid) {
-        // Payment successful, redirect to job detail
-        navigate(`/jobs/${id}?payment=success`);
-      }
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${API_URL}/api/payments/verify-multi-wallet`,
+        {
+          jobId: Number(id),
+          paymentHash: invoice.paymentHash,
+          proof: preimage,
+          method
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      // Payment verified, redirect to job detail with success message
+      navigate(`/jobs/${id}?payment=success`);
     } catch (err: any) {
-      console.error('Failed to check payment status:', err);
-    } finally {
-      setChecking(false);
-    }
-  };
-
-  const copyToClipboard = async () => {
-    if (!invoice) return;
-
-    try {
-      await navigator.clipboard.writeText(invoice.payment_request);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
+      setError(err.response?.data?.error || 'Payment verification failed');
+      setShowPayment(false);
     }
   };
 
@@ -196,7 +192,7 @@ export default function PaymentPage() {
             <div className="flex justify-between">
               <span className="text-gray-600">Amount (sats):</span>
               <span className="font-medium text-gray-900">
-                {invoice.amount_sats.toLocaleString()} sats
+                {invoice.amountSats.toLocaleString()} sats
               </span>
             </div>
           )}
@@ -210,99 +206,47 @@ export default function PaymentPage() {
         </div>
       )}
 
-      {/* Invoice Display */}
-      {!invoice ? (
+      {/* Generate Invoice Button */}
+      {!invoice && (
         <div className="bg-white shadow rounded-lg p-6">
           <p className="text-gray-600 mb-6">
-            Click the button below to generate a Lightning invoice for this payment.
+            Click the button below to generate a Lightning invoice and choose your payment method.
           </p>
           
           <button
             onClick={createInvoice}
             disabled={creating}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
           >
-            {creating ? 'Creating Invoice...' : 'Generate Lightning Invoice'}
+            {creating ? 'Creating Invoice...' : '⚡ Generate Lightning Invoice'}
           </button>
         </div>
-      ) : (
-        <div className="bg-white shadow rounded-lg p-6">
-          {/* QR Code */}
-          <div className="mb-6">
-            <div className="bg-white border-2 border-gray-300 rounded-lg p-8 flex items-center justify-center">
-              <div className="text-center">
-                <div className="inline-block p-4 bg-white rounded-lg">
-                  <QRCodeSVG
-                    value={invoice.payment_request}
-                    size={256}
-                    level="M"
-                    includeMargin={true}
-                  />
-                </div>
-                <p className="text-sm text-gray-500 mt-4">
-                  Scan this QR code with your Lightning wallet
-                </p>
-              </div>
-            </div>
-          </div>
+      )}
 
-          {/* Invoice String */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Lightning Invoice
-            </label>
-            <div className="relative">
-              <textarea
-                readOnly
-                value={invoice.payment_request}
-                rows={4}
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-xs font-mono bg-gray-50 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-              <button
-                onClick={copyToClipboard}
-                className="absolute top-2 right-2 px-3 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50"
-              >
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
-            </div>
-          </div>
-
-          {/* Payment Status */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                {checking ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                ) : (
-                  <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                )}
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-blue-800">
-                  Waiting for payment... Checking every 3 seconds.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Expiration */}
-          <div className="text-center text-sm text-gray-500">
-            Invoice expires: {new Date(invoice.expires_at).toLocaleString()}
-          </div>
-        </div>
+      {/* Universal Payment Modal */}
+      {showPayment && invoice && (
+        <UniversalPayment
+          invoice={invoice.paymentRequest}
+          paymentHash={invoice.paymentHash}
+          amount={invoice.amountSats}
+          jobId={Number(id)}
+          onSuccess={handlePaymentSuccess}
+          onCancel={() => {
+            setShowPayment(false);
+            setInvoice(null);
+          }}
+        />
       )}
 
       {/* Instructions */}
       <div className="mt-6 bg-gray-50 rounded-lg p-6">
-        <h3 className="text-sm font-medium text-gray-900 mb-3">How to pay:</h3>
-        <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
-          <li>Open your Lightning wallet (e.g., Phoenix, Muun, BlueWallet)</li>
-          <li>Scan the QR code or paste the invoice string</li>
-          <li>Confirm the payment in your wallet</li>
-          <li>Wait for confirmation (usually instant)</li>
-        </ol>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Multiple Payment Methods Supported:</h3>
+        <ul className="list-disc list-inside space-y-2 text-sm text-gray-600">
+          <li><strong>WebLN:</strong> One-click payment with browser wallets (Alby, Zeus, Mutiny)</li>
+          <li><strong>QR Code:</strong> Scan with mobile wallets (Phoenix, BlueWallet, Breez)</li>
+          <li><strong>Manual:</strong> Paste invoice in your wallet, then submit preimage proof</li>
+          <li><strong>Upload:</strong> Take a screenshot of payment confirmation for verification</li>
+        </ul>
       </div>
     </div>
   );

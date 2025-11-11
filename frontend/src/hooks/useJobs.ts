@@ -124,7 +124,7 @@ export function useAssignJob() {
       if (previousJob) {
         queryClient.setQueryData<Job>(jobKeys.detail(id), {
           ...previousJob,
-          status: 'assigned',
+          status: 'accepted',
         })
       }
 

@@ -19,16 +19,16 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
-    /* AUTHENTICATION BYPASSED - Commented out for testing`n
-    if (!isAuthenticated) {`n
-      navigate('/login');`n
-      return;`n
-    }`n
-    */
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
 
     if (user) {
       setDisplayName(user.display_name || '');
       loadRunnerProfile();
+    } else {
+      setLoading(false);
     }
   }, [isAuthenticated, user, navigate]);
 

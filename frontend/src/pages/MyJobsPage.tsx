@@ -61,8 +61,8 @@ export default function MyJobsPage() {
   const stats = {
     total: jobs.length,
     open: jobs.filter(j => j.status === 'open').length,
-    in_progress: jobs.filter(j => j.status === 'in_progress' || j.status === 'assigned').length,
-    completed: jobs.filter(j => j.status === 'completed').length,
+    in_progress: jobs.filter(j => j.status === 'in_progress' || j.status === 'accepted').length,
+    completed: jobs.filter(j => j.status === 'completed' || j.status === 'awaiting_payment' || j.status === 'payment_confirmed').length,
   };
 
   return (

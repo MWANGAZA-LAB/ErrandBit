@@ -4,7 +4,7 @@
  */
 
 import axios from 'axios';
-import { authService } from './auth.service';
+import { simpleAuthService } from './simple-auth.service';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const API_BASE = `${API_URL}/api`;
@@ -31,7 +31,7 @@ export interface ConversionRate {
 
 class PaymentService {
   private getHeaders() {
-    const token = authService.getToken();
+    const token = simpleAuthService.getToken();
     return {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'

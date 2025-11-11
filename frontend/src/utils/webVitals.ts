@@ -15,6 +15,11 @@ const ANALYTICS_ENDPOINT = '/api/analytics'
  * Send metric to analytics
  */
 function sendToAnalytics(metric: Metric) {
+  // Only send in production
+  if (import.meta.env.DEV) {
+    return
+  }
+
   const body = JSON.stringify({
     name: metric.name,
     value: metric.value,
@@ -37,7 +42,10 @@ function sendToAnalytics(metric: Metric) {
       headers: { 'Content-Type': 'application/json' },
       keepalive: true,
     }).catch((error) => {
-      console.error('Failed to send analytics:', error)
+      // Silently fail - don't spam console
+      if (import.meta.env.DEV) {
+        console.warn('Analytics service unavailable:', error)
+      }
     })
   }
 }

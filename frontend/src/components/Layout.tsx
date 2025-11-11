@@ -1,16 +1,26 @@
 import { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Users, Briefcase, User } from 'lucide-react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Home, Users, Briefcase, User, LogOut, LogIn } from 'lucide-react';
 import { useIsMobile } from '../hooks/useMobile';
+import { simpleAuthService } from '../services/simple-auth.service';
 
 export default function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const isAuthenticated = simpleAuthService.isAuthenticated();
+  const user = simpleAuthService.getUser();
   
   const isActive = (path: string) => location.pathname === path;
   
   const closeMobileMenu = () => setMobileMenuOpen(false);
+  
+  const handleLogout = () => {
+    simpleAuthService.logout();
+    navigate('/login');
+  };
   
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -66,6 +76,32 @@ export default function Layout() {
               >
                 Profile
               </Link>
+              
+              {/* Auth buttons */}
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-gray-600">
+                    {user?.displayName || user?.username}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    {/* @ts-expect-error - React 18 type compatibility */}
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  {/* @ts-expect-error - React 18 type compatibility */}
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Login
+                </Link>
+              )}
             </div>
             
             {/* Mobile Menu Button */}

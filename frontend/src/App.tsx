@@ -20,7 +20,7 @@ import { PWAUpdateNotification } from './components/PWAUpdateNotification';
 // Lazy load all page components for code splitting
 const Layout = lazy(() => import('./components/Layout'));
 const Home = lazy(() => import('./pages/Home'));
-const Login = lazy(() => import('./pages/Login'));
+const SimpleLogin = lazy(() => import('./pages/SimpleLogin'));
 const CreateJob = lazy(() => import('./pages/CreateJob'));
 const BrowseJobs = lazy(() => import('./pages/BrowseJobs'));
 const JobDetailPage = lazy(() => import('./pages/JobDetailPage'));
@@ -66,8 +66,8 @@ export default function App() {
 
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Login route commented out - authentication bypassed */}
-            {/* <Route path="/login" element={<Login />} /> */}
+            {/* Login route */}
+            <Route path="/login" element={<SimpleLogin />} />
             
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />

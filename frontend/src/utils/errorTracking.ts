@@ -28,16 +28,21 @@ export function reportError(error: ErrorReport) {
   // Log to console in development
   if (import.meta.env.DEV) {
     console.error('[Error Tracking]', error)
+    // Skip sending to server in development
+    return
   }
 
-  // Send to error tracking service
+  // Send to error tracking service only in production
   fetch(ERROR_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(error),
     keepalive: true,
   }).catch((err) => {
-    console.error('Failed to report error:', err)
+    // Silently fail - don't spam console with tracking errors
+    if (import.meta.env.DEV) {
+      console.warn('Error tracking service unavailable:', err)
+    }
   })
 }
 

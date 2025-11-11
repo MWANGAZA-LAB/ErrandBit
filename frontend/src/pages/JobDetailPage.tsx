@@ -11,10 +11,12 @@ import { formatCentsAsUsd } from '../utils/currency';
 
 const STATUS_COLORS: Record<string, string> = {
   open: 'bg-green-100 text-green-800',
-  pending: 'bg-blue-100 text-blue-800',
-  assigned: 'bg-blue-100 text-blue-800',
+  accepted: 'bg-blue-100 text-blue-800',
   in_progress: 'bg-yellow-100 text-yellow-800',
-  completed: 'bg-purple-100 text-purple-800',
+  awaiting_payment: 'bg-purple-100 text-purple-800',
+  payment_confirmed: 'bg-indigo-100 text-indigo-800',
+  completed: 'bg-green-100 text-green-800',
+  disputed: 'bg-orange-100 text-orange-800',
   cancelled: 'bg-red-100 text-red-800'
 };
 
@@ -206,8 +208,8 @@ export default function JobDetailPage() {
             {/* Job Location */}
             <div>
               <h3 className="text-sm font-medium text-gray-900 mb-2">Job Location</h3>
-              <p className="text-sm text-gray-600">{job.address}</p>
-              {job.location.lat && job.location.lng && (
+              <p className="text-sm text-gray-600">{job.address || 'No address provided'}</p>
+              {job.location && job.location.lat && job.location.lng && (
                 <a
                   href={`https://www.google.com/maps?q=${job.location.lat},${job.location.lng}`}
                   target="_blank"
@@ -251,7 +253,7 @@ export default function JobDetailPage() {
       {/* Actions */}
       <div className="mt-6 flex justify-end space-x-3">
         {/* Open job - Runner can accept */}
-        {!isClient && (job.status === 'open' || job.status === 'pending') && (
+        {!isClient && job.status === 'open' && (
           <button
             onClick={handleAcceptJob}
             disabled={actionLoading}
@@ -262,7 +264,7 @@ export default function JobDetailPage() {
         )}
 
         {/* Accepted job - Runner can start */}
-        {isRunner && (job.status === 'assigned' || job.status === 'pending') && (
+        {isRunner && job.status === 'accepted' && (
           <button
             onClick={handleStartJob}
             disabled={actionLoading}
@@ -283,8 +285,8 @@ export default function JobDetailPage() {
           </button>
         )}
 
-        {/* Completed - Client can pay */}
-        {job.status === 'completed' && isClient && (
+        {/* Awaiting payment - Client can pay */}
+        {(job.status === 'awaiting_payment' || job.status === 'completed') && isClient && (
           <button
             onClick={() => navigate(`/jobs/${job.id}/pay`)}
             className="px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -294,7 +296,7 @@ export default function JobDetailPage() {
         )}
 
         {/* Cancel button */}
-        {(job.status === 'open' || job.status === 'assigned' || job.status === 'in_progress') && (isClient || isRunner) && (
+        {(job.status === 'open' || job.status === 'accepted' || job.status === 'in_progress') && (isClient || isRunner) && (
           <button
             onClick={handleCancelJob}
             disabled={actionLoading}

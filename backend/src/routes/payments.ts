@@ -13,6 +13,21 @@ import {
   centsToSats,
   verifyPreimage,
 } from '../utils/lightning';
+import {
+  validatePaymentProof,
+  validateVerificationUpdate,
+  validateInvoiceCreation,
+  rateLimitPayments,
+  type PaymentValidationRequest
+} from '../middleware/payment-validation';
+import {
+  verifyPayment,
+  updatePaymentVerification,
+  getPendingVerifications,
+  createInvoice,
+  recordPaymentTransaction,
+  PaymentVerificationLevel
+} from '../services/PaymentService';
 
 const router = Router();
 
@@ -262,5 +277,217 @@ router.post('/confirm', authenticate, confirmPaymentValidation, async (req: Auth
     res.status(500).json({ error: 'Failed to confirm payment', message: (error as Error).message });
   }
 });
+
+/**
+ * POST /api/payments/verify-multi-wallet
+ * Verify a Lightning payment (multi-wallet support)
+ */
+router.post(
+  '/verify-multi-wallet',
+  authenticate,
+  rateLimitPayments,
+  validatePaymentProof,
+  async (req: PaymentValidationRequest, res: Response) => {
+    try {
+      const { jobId, paymentHash, proof, method } = req.body;
+
+      // Verify the payment
+      const result = await verifyPayment(paymentHash, proof, method);
+
+      // Record the transaction
+      const transaction = await recordPaymentTransaction(
+        jobId,
+        paymentHash,
+        0, // Amount will be updated from invoice
+        method
+      );
+
+      // If cryptographically verified, update job status
+      if (result.verified && result.level === PaymentVerificationLevel.CRYPTOGRAPHIC) {
+        const pool = getPool();
+        
+        if (pool) {
+          await pool.query(
+            `UPDATE jobs 
+             SET status = 'payment_confirmed',
+                 paid_at = NOW(),
+                 updated_at = NOW()
+             WHERE id = $1`,
+            [jobId]
+          );
+
+          // Update transaction status
+          await pool.query(
+            `UPDATE lightning_transactions
+             SET status = 'completed',
+                 payment_preimage = $1,
+                 verification_level = $2,
+                 updated_at = NOW()
+             WHERE payment_hash = $3`,
+            [proof, PaymentVerificationLevel.CRYPTOGRAPHIC, paymentHash]
+          );
+        }
+      }
+
+      res.status(200).json({
+        success: result.verified,
+        verificationLevel: result.level,
+        message: result.message,
+        transactionId: transaction.id
+      });
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      res.status(500).json({
+        error: 'Payment verification failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/payments/create-invoice-multi-wallet
+ * Create a Lightning invoice for a job (multi-wallet support)
+ */
+router.post(
+  '/create-invoice-multi-wallet',
+  authenticate,
+  rateLimitPayments,
+  validateInvoiceCreation,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { jobId, amountSats } = req.body;
+      const userId = req.userId;
+
+      const pool = getPool();
+      
+      if (!pool) {
+        throw new Error('Database connection not available');
+      }
+
+      const jobResult = await pool.query(
+        'SELECT client_id, title FROM jobs WHERE id = $1',
+        [jobId]
+      );
+
+      if (jobResult.rows.length === 0) {
+        res.status(404).json({
+          error: 'Job not found'
+        });
+        return;
+      }
+
+      const job = jobResult.rows[0];
+      if (job.client_id !== userId) {
+        res.status(403).json({
+          error: 'Forbidden',
+          message: 'You can only create invoices for your own jobs'
+        });
+        return;
+      }
+
+      // Create the invoice
+      const invoice = await createInvoice(
+        amountSats,
+        `Payment for job: ${job.title}`
+      );
+
+      res.status(200).json({
+        success: true,
+        invoice: {
+          paymentRequest: invoice.paymentRequest,
+          paymentHash: invoice.paymentHash,
+          amountSats: invoice.amountSats,
+          expiresAt: invoice.expiresAt
+        },
+        // Only include test preimage in development
+        ...(process.env.NODE_ENV === 'development' && {
+          _testPreimage: invoice._testPreimage
+        })
+      });
+    } catch (error) {
+      console.error('Invoice creation error:', error);
+      res.status(500).json({
+        error: 'Invoice creation failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+);
+
+/**
+ * PUT /api/payments/update-verification
+ * Update payment verification status (runner/admin only)
+ */
+router.put(
+  '/update-verification',
+  authenticate,
+  validateVerificationUpdate,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { paymentHash, verificationLevel } = req.body;
+      const userId = req.userId;
+
+      if (!userId) {
+        res.status(401).json({
+          error: 'Authentication required'
+        });
+        return;
+      }
+
+      await updatePaymentVerification(
+        paymentHash,
+        verificationLevel,
+        userId as number
+      );
+
+      res.status(200).json({
+        success: true,
+        message: 'Verification status updated'
+      });
+    } catch (error) {
+      console.error('Verification update error:', error);
+      res.status(500).json({
+        error: 'Verification update failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/payments/pending-verifications
+ * Get pending payment verifications for current runner
+ */
+router.get(
+  '/pending-verifications',
+  authenticate,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = req.userId;
+
+      if (!userId) {
+        res.status(401).json({
+          error: 'Authentication required'
+        });
+        return;
+      }
+
+      const pending = await getPendingVerifications(userId as number);
+
+      res.status(200).json({
+        success: true,
+        count: pending.length,
+        verifications: pending
+      });
+    } catch (error) {
+      console.error('Error fetching pending verifications:', error);
+      res.status(500).json({
+        error: 'Failed to fetch pending verifications',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+);
 
 export default router;

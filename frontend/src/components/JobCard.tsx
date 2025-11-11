@@ -24,10 +24,12 @@ interface JobCardProps {
 
 const STATUS_COLORS: Record<string, string> = {
   open: 'bg-green-100 text-green-800',
-  pending: 'bg-blue-100 text-blue-800',
-  assigned: 'bg-blue-100 text-blue-800',
+  accepted: 'bg-blue-100 text-blue-800',
   in_progress: 'bg-yellow-100 text-yellow-800',
-  completed: 'bg-purple-100 text-purple-800',
+  awaiting_payment: 'bg-purple-100 text-purple-800',
+  payment_confirmed: 'bg-indigo-100 text-indigo-800',
+  completed: 'bg-green-100 text-green-800',
+  disputed: 'bg-orange-100 text-orange-800',
   cancelled: 'bg-red-100 text-red-800'
 };
 
