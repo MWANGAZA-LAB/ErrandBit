@@ -297,10 +297,11 @@ jobs:
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
         if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           status: ${{ job.status }}
           text: 'Staging deployment ${{ job.status }}'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
 
   deploy-production:
     name: Deploy to Production
@@ -328,10 +329,11 @@ jobs:
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
         if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           status: ${{ job.status }}
           text: 'Production deployment ${{ job.status }}'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
 
   # ============================================
   # PERFORMANCE & E2E TESTS
