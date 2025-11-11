@@ -1,6 +1,6 @@
 /**
  * WebLN Type Definitions
- * Injected by Fedi app for seamless Lightning payments
+ * Standard WebLN interface for Lightning wallet integration
  */
 
 export interface WebLNProvider {
