@@ -87,7 +87,6 @@ export default function Layout() {
                     onClick={handleLogout}
                     className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    {/* @ts-expect-error - React 18 type compatibility */}
                     <LogOut className="h-4 w-4 mr-2" />
                     Logout
                   </button>
@@ -97,7 +96,6 @@ export default function Layout() {
                   to="/login"
                   className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  {/* @ts-expect-error - React 18 type compatibility */}
                   <LogIn className="h-4 w-4 mr-2" />
                   Login
                 </Link>
@@ -113,10 +111,8 @@ export default function Layout() {
                 aria-label="Toggle navigation menu"
               >
                 {mobileMenuOpen ? (
-                  /* @ts-expect-error - React 18 type compatibility */
                   <X className="h-6 w-6" aria-hidden="true" />
                 ) : (
-                  /* @ts-expect-error - React 18 type compatibility */
                   <Menu className="h-6 w-6" aria-hidden="true" />
                 )}
               </button>
@@ -136,7 +132,6 @@ export default function Layout() {
                 } flex items-center px-3 py-2 border-l-4 text-base font-medium transition-colors`}
                 aria-current={isActive('/') ? 'page' : undefined}
               >
-                {/* @ts-expect-error - React 18 type compatibility */}
                 <Home className="mr-3 h-5 w-5" aria-hidden="true" />
                 Home
               </Link>
@@ -148,7 +143,6 @@ export default function Layout() {
                 } flex items-center px-3 py-2 border-l-4 text-base font-medium transition-colors`}
                 aria-current={isActive('/find-runners') ? 'page' : undefined}
               >
-                {/* @ts-expect-error - React 18 type compatibility */}
                 <Users className="mr-3 h-5 w-5" aria-hidden="true" />
                 Find Runners
               </Link>
@@ -160,7 +154,6 @@ export default function Layout() {
                 } flex items-center px-3 py-2 border-l-4 text-base font-medium transition-colors`}
                 aria-current={isActive('/my-jobs') ? 'page' : undefined}
               >
-                {/* @ts-expect-error - React 18 type compatibility */}
                 <Briefcase className="mr-3 h-5 w-5" aria-hidden="true" />
                 My Jobs
               </Link>
@@ -172,7 +165,6 @@ export default function Layout() {
                 } flex items-center px-3 py-2 border-l-4 text-base font-medium transition-colors`}
                 aria-current={isActive('/profile') ? 'page' : undefined}
               >
-                {/* @ts-expect-error - React 18 type compatibility */}
                 <User className="mr-3 h-5 w-5" aria-hidden="true" />
                 Profile
               </Link>

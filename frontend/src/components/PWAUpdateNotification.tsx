@@ -40,7 +40,6 @@ export function PWAUpdateNotification() {
     >
       <div className="flex items-start">
         <div className="flex-shrink-0">
-          {/* @ts-expect-error - React 18 type compatibility */}
           <RefreshCw className="h-6 w-6 text-indigo-600" aria-hidden="true" />
         </div>
         <div className="ml-3 flex-1">

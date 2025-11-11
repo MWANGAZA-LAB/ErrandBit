@@ -36,7 +36,6 @@ createRoot(el).render(
         <App />
       </BrowserRouter>
       {/* React Query DevTools - only in development */}
-      {/* @ts-expect-error - React 18 type compatibility */}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </React.StrictMode>
