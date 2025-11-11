@@ -8,6 +8,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { jobService, Job } from '../services/job.service';
 import { reviewService, Review } from '../services/review.service';
+import { simpleAuthService } from '../services/simple-auth.service';
 import { formatCentsAsUsd } from '../utils/currency';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -82,20 +83,28 @@ export default function JobDetailPage() {
   };
 
   const handleAcceptJob = async () => {
-    if (!id || !user) return;
+    if (!id) {
+      setError('Invalid job ID');
+      return;
+    }
 
     setActionLoading(true);
     setError('');
     setSuccess('');
 
     try {
+      console.log('Accepting job:', id);
       const updatedJob = await jobService.assignJob(id);
+      console.log('Job accepted successfully:', updatedJob);
       setJob(updatedJob);
       setSuccess('Job accepted! You can now start working on it.');
       // Reload to ensure fresh data
       await loadJob();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to assign job');
+      console.error('Failed to accept job:', err);
+      const errorMsg = err.response?.data?.error || err.message || 'Failed to assign job';
+      setError(errorMsg);
+      alert(`Error accepting job: ${errorMsg}`); // Make error very visible
     } finally {
       setActionLoading(false);
     }
@@ -219,7 +228,11 @@ export default function JobDetailPage() {
 
   if (!job) return null;
 
-  const userId = Number(user?.id);
+  // Get user ID - check both AuthContext and simpleAuthService
+  const contextUserId = user?.id;
+  const simpleUser = simpleAuthService.getUser();
+  const userId = contextUserId ? Number(contextUserId) : (simpleUser?.id || 0);
+  
   const isClient = userId === job.clientId;
   const isRunner = userId === job.runnerId;
   const statusColor = STATUS_COLORS[job.status] || 'bg-gray-100 text-gray-800';
