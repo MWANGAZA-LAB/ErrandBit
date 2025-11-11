@@ -89,7 +89,7 @@ export async function verifyPayment(
   // QR and Upload methods require manual verification
   if (method === 'qr' || method === 'upload') {
     // Store the proof for manual review
-    await storePaymentProof(paymentHash, proof, method);
+    await storePaymentProof(paymentHash, proof);
     
     return {
       verified: false, // Not yet verified
@@ -110,12 +110,10 @@ export async function verifyPayment(
  * 
  * @param paymentHash - The payment hash
  * @param proof - The payment proof (image data or other evidence)
- * @param method - The payment method
  */
 async function storePaymentProof(
   paymentHash: string,
-  proof: string,
-  method: PaymentMethod
+  proof: string
 ): Promise<void> {
   const pool = getPool();
   if (!pool) {
