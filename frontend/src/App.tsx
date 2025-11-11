@@ -28,6 +28,7 @@ const MyJobsPage = lazy(() => import('./pages/MyJobsPage'));
 const PaymentPage = lazy(() => import('./pages/PaymentPage'));
 const CreateRunnerProfile = lazy(() => import('./pages/CreateRunnerProfile'));
 const FindRunnersPage = lazy(() => import('./pages/FindRunnersPage'));
+const RunnerDetailPage = lazy(() => import('./pages/RunnerDetailPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 
 export default function App() {
@@ -78,6 +79,7 @@ export default function App() {
               <Route path="my-jobs" element={<MyJobsPage />} />
               <Route path="become-runner" element={<CreateRunnerProfile />} />
               <Route path="find-runners" element={<FindRunnersPage />} />
+              <Route path="runners/:id" element={<RunnerDetailPage />} />
               <Route path="profile" element={<ProfilePage />} />
               
               {/* 404 Not Found */}

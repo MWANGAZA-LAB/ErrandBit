@@ -19,3 +19,25 @@ frontend/dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Test scripts and temporary files
+test-*.ps1
+test-results.json
+TESTING_SESSION.md
+
+# Redundant setup scripts
+CLEANUP_SCRIPT.ps1
+cleanup-docs.ps1
+disable-auth-checks.ps1
+configure-credentials.ps1
+git-setup.ps1
+
+# Batch files (use npm scripts instead)
+*.bat
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

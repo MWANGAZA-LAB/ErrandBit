@@ -24,6 +24,7 @@ export default function PaymentPage() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
   const [showPayment, setShowPayment] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -109,7 +110,8 @@ export default function PaymentPage() {
           jobId: Number(id),
           paymentHash: invoice.paymentHash,
           proof: preimage,
-          method
+          method,
+          amountSats: invoice.amountSats
         },
         {
           headers: {
@@ -119,8 +121,15 @@ export default function PaymentPage() {
         }
       );
 
-      // Payment verified, redirect to job detail with success message
-      navigate(`/jobs/${id}?payment=success`);
+      // Show success state
+      setPaymentSuccess(true);
+      setShowPayment(false);
+      
+      // Auto-redirect after 3 seconds
+      setTimeout(() => {
+        navigate(`/jobs/${id}`);
+      }, 3000);
+      
     } catch (err: any) {
       setError(err.response?.data?.error || 'Payment verification failed');
       setShowPayment(false);
@@ -133,6 +142,45 @@ export default function PaymentPage() {
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           <p className="mt-2 text-sm text-gray-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Payment Success Screen
+  if (paymentSuccess) {
+    return (
+      <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="bg-green-50 border-2 border-green-500 rounded-lg p-8 text-center">
+          <div className="mb-4">
+            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100">
+              <svg className="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-green-900 mb-2">Payment Confirmed! ⚡</h2>
+          <p className="text-green-700 mb-6">
+            Your payment has been successfully verified on the Lightning Network.
+          </p>
+          <div className="bg-white rounded-md p-4 mb-6">
+            <p className="text-sm text-gray-600 mb-2">Transaction Details:</p>
+            <p className="text-xs text-gray-500 font-mono break-all">
+              Payment Hash: {invoice?.paymentHash?.substring(0, 32)}...
+            </p>
+            <p className="text-sm font-medium text-green-600 mt-2">
+              Amount: {invoice?.amountSats?.toLocaleString()} sats
+            </p>
+          </div>
+          <p className="text-sm text-gray-600 mb-4">
+            Redirecting you back to the job in 3 seconds...
+          </p>
+          <button
+            onClick={() => navigate(`/jobs/${id}`)}
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            View Job Now
+          </button>
         </div>
       </div>
     );
