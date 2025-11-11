@@ -9,6 +9,25 @@ import { simpleAuthService } from './simple-auth.service';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const API_BASE = `${API_URL}/api`;
 
+// Transform snake_case API response to camelCase
+function transformJob(apiJob: any): Job {
+  return {
+    id: apiJob.id,
+    clientId: apiJob.client_id || apiJob.clientId,
+    runnerId: apiJob.runner_id || apiJob.runnerId,
+    title: apiJob.title,
+    description: apiJob.description,
+    status: apiJob.status,
+    priceCents: apiJob.price_cents || apiJob.priceCents,
+    location: apiJob.location,
+    address: apiJob.address || '',
+    deadline: apiJob.deadline,
+    completedAt: apiJob.completed_at || apiJob.completedAt,
+    createdAt: apiJob.created_at || apiJob.createdAt,
+    updatedAt: apiJob.updated_at || apiJob.updatedAt,
+  };
+}
+
 export interface Job {
   id: number;
   clientId: number;
@@ -53,7 +72,8 @@ class JobService {
     const response = await axios.post(`${API_BASE}/jobs`, data, {
       headers: this.getHeaders()
     });
-    return response.data.data || response.data.job;
+    const apiJob = response.data.data || response.data.job;
+    return transformJob(apiJob);
   }
 
   async getNearbyJobs(lat: number, lng: number, radiusKm: number = 10, status?: string): Promise<Job[]> {
@@ -63,21 +83,24 @@ class JobService {
       headers: this.getHeaders(),
       params
     });
-    return response.data.data || response.data.jobs || [];
+    const apiJobs = response.data.data || response.data.jobs || [];
+    return apiJobs.map(transformJob);
   }
 
   async getMyJobs(): Promise<Job[]> {
     const response = await axios.get(`${API_BASE}/jobs/my-jobs`, {
       headers: this.getHeaders()
     });
-    return response.data.data || response.data.jobs || [];
+    const apiJobs = response.data.data || response.data.jobs || [];
+    return apiJobs.map(transformJob);
   }
 
   async getJobById(id: number | string): Promise<Job> {
     const response = await axios.get(`${API_BASE}/jobs/${id}`, {
       headers: this.getHeaders()
     });
-    return response.data.data || response.data.job;
+    const apiJob = response.data.data || response.data.job;
+    return transformJob(apiJob);
   }
 
   async assignJob(id: number | string): Promise<Job> {
@@ -86,7 +109,8 @@ class JobService {
       {},
       { headers: this.getHeaders() }
     );
-    return response.data.data || response.data.job;
+    const apiJob = response.data.data || response.data.job;
+    return transformJob(apiJob);
   }
 
   async startJob(id: number | string): Promise<Job> {
@@ -100,7 +124,8 @@ class JobService {
       {},
       { headers: this.getHeaders() }
     );
-    return response.data.data || response.data.job;
+    const apiJob = response.data.data || response.data.job;
+    return transformJob(apiJob);
   }
 
   async cancelJob(id: number | string): Promise<Job> {
@@ -109,7 +134,8 @@ class JobService {
       {},
       { headers: this.getHeaders() }
     );
-    return response.data.data || response.data.job;
+    const apiJob = response.data.data || response.data.job;
+    return transformJob(apiJob);
   }
 }
 
