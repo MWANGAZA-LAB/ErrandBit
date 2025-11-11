@@ -10,14 +10,16 @@
  * - Screen reader optimizations
  */
 
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Job } from '../services/job.service';
 import { formatCentsAsUsd } from '../utils/currency';
+import { usePrefetchJob } from '../hooks/useJobs';
 
 interface JobCardProps {
   job: Job;
   onClick?: () => void;
+  enablePrefetch?: boolean;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -32,7 +34,9 @@ const STATUS_COLORS: Record<string, string> = {
 // Category removed - using generic job icon
 const JOB_ICON = '💼';
 
-function JobCardComponent({ job, onClick }: JobCardProps) {
+function JobCardComponent({ job, onClick, enablePrefetch = true }: JobCardProps) {
+  const prefetchJob = usePrefetchJob();
+
   // Memoize expensive computations
   const statusColor = useMemo(
     () => STATUS_COLORS[job.status] || 'bg-gray-100 text-gray-800',
@@ -60,10 +64,18 @@ function JobCardComponent({ job, onClick }: JobCardProps) {
     [job.title, statusLabel, formattedPrice, job.address, formattedDate]
   );
 
+  // Prefetch job data on hover for instant navigation
+  const handleMouseEnter = useCallback(() => {
+    if (enablePrefetch) {
+      prefetchJob(job.id);
+    }
+  }, [enablePrefetch, prefetchJob, job.id]);
+
   return (
     <Link
       to={`/jobs/${job.id}`}
       onClick={onClick}
+      onMouseEnter={handleMouseEnter}
       className="block bg-white shadow rounded-lg hover:shadow-md transition-shadow duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
       aria-label={ariaLabel}
     >

@@ -107,6 +107,19 @@ export function PageLoader() {
   );
 }
 
+export function LoadingSpinner({ message = 'Loading...' }: { message?: string }) {
+  return (
+    <div
+      className="text-center py-12"
+      role="status"
+      aria-label={message}
+    >
+      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      <p className="mt-2 text-sm text-gray-500">{message}</p>
+    </div>
+  );
+}
+
 export function TableSkeleton({ rows = 5 }: { rows?: number }) {
   return (
     <div className="animate-pulse" role="status" aria-label="Loading table">

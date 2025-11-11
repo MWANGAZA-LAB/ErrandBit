@@ -14,6 +14,8 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import { PageLoader } from './components/LoadingSkeletons';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
+import { PWAUpdateNotification } from './components/PWAUpdateNotification';
 
 // Lazy load all page components for code splitting
 const Layout = lazy(() => import('./components/Layout'));
@@ -35,7 +37,7 @@ export default function App() {
         {/* Skip to main content link for accessibility */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-md"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           Skip to main content
         </a>
@@ -99,6 +101,10 @@ export default function App() {
             </Route>
           </Routes>
         </Suspense>
+        
+        {/* PWA Components */}
+        <PWAInstallPrompt />
+        <PWAUpdateNotification />
       </AuthProvider>
     </ErrorBoundary>
   );
