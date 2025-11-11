@@ -11,6 +11,7 @@
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "type-check": "tsc --noEmit",
     "analyze": "vite build --mode analyze",
+    "test": "echo \"No tests yet\" && exit 0",
     "test:build": "npm run type-check && npm run build"
   },
   "dependencies": {

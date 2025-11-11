@@ -87,7 +87,7 @@ jobs:
           NODE_ENV: test
           JWT_SECRET: test_secret
           JWT_REFRESH_SECRET: test_refresh_secret
-        run: npm test -- --coverage
+        run: npm run test:coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -169,7 +169,8 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test -- --coverage
+        working-directory: ./frontend
+        run: npm test
         continue-on-error: true
 
       - name: Upload coverage to Codecov
