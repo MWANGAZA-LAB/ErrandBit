@@ -78,8 +78,6 @@ cd frontend && npm run dev
 #### Test 1: Home Page
 - [ ] Navigate to http://localhost:5173
 - [ ] Verify page loads without errors
-- [ ] Check FediStatus component displays
-- [ ] Should show "Open in Fedi for Full Experience" message
 - [ ] Verify navigation links work
 - [ ] Check API health status displays
 
@@ -103,35 +101,9 @@ cd frontend && npm run dev
 - [ ] Check runner profile section
 - [ ] Verify "Save Changes" button present
 
-### Phase 2: Fedi Simulation Testing
+### Phase 2: Payment Flow Testing
 
-#### Test 5: WebLN Simulation
-
-1. **Open browser console** (F12)
-
-2. **Load simulator:**
-   ```javascript
-   // Option 1: Add script tag
-   const script = document.createElement('script');
-   script.src = '/fedi-simulator.js';
-   document.head.appendChild(script);
-   
-   // Option 2: Use URL parameter
-   // Navigate to: http://localhost:5173?fedi-sim=true
-   ```
-
-3. **Enable WebLN:**
-   ```javascript
-   simulateWebLN();
-   location.reload();
-   ```
-
-4. **Verify WebLN active:**
-   - [ ] FediStatus shows "Connected to Fedi"
-   - [ ] "Lightning payments enabled" message displays
-   - [ ] Console shows "[Fedi Simulator] WebLN enabled"
-
-#### Test 6: Job Detail with Payment
+#### Test 5: Job Detail with Payment
 
 1. **Navigate to job detail:**
    ```
@@ -144,7 +116,7 @@ cd frontend && npm run dev
    - [ ] Amount displays correctly (50,000 sats)
    - [ ] Status badge shows "Completed - Ready to Pay"
 
-3. **Test payment flow:**
+2. **Test payment flow:**
    - [ ] Click "Pay 50,000 sats" button
    - [ ] Button shows "Processing..." state
    - [ ] Console shows payment simulation

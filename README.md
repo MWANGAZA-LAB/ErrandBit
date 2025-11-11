@@ -6,15 +6,11 @@
 
 ErrandBit eliminates platform rent-seeking through Bitcoin Lightning payments, returning economic power to service providers while maintaining client protection through reputation and lightweight coordination.
 
-**Now available as a Fedi Mod!** Run natively in the Fedi app with seamless WebLN payments and Nostr identity. See [FEDI_INTEGRATION.md](FEDI_INTEGRATION.md) for details.
-
 ## Technology Stack
 
 - **Backend:** Node.js + Express + PostgreSQL + PostGIS
 - **Frontend:** React + TypeScript + Vite + Tailwind CSS
 - **Payments:** Bitcoin Lightning (WebLN + LNURL + LNBits)
-- **Identity:** Nostr (privacy-preserving, optional)
-- **Platform:** Fedi Mod (runs in Fedi app) + Web
 - **Real-time:** Socket.io + Redis (planned)
 - **Maps:** Mapbox (planned)
 
