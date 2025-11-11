@@ -31,6 +31,7 @@ export default function JobDetailPage() {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
@@ -67,10 +68,14 @@ export default function JobDetailPage() {
 
     setActionLoading(true);
     setError('');
+    setSuccess('');
 
     try {
       const updatedJob = await jobService.assignJob(id);
       setJob(updatedJob);
+      setSuccess('Job accepted! You can now start working on it.');
+      // Reload to ensure fresh data
+      await loadJob();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to assign job');
     } finally {
@@ -83,10 +88,14 @@ export default function JobDetailPage() {
 
     setActionLoading(true);
     setError('');
+    setSuccess('');
 
     try {
       const updatedJob = await jobService.startJob(id);
       setJob(updatedJob);
+      setSuccess('Job started! Good luck!');
+      // Reload to ensure fresh data
+      await loadJob();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to start job');
     } finally {
@@ -99,10 +108,14 @@ export default function JobDetailPage() {
 
     setActionLoading(true);
     setError('');
+    setSuccess('');
 
     try {
       const updatedJob = await jobService.completeJob(id);
       setJob(updatedJob);
+      setSuccess('Job marked as complete! Awaiting payment from client.');
+      // Reload to ensure fresh data
+      await loadJob();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to complete job');
     } finally {
@@ -112,7 +125,6 @@ export default function JobDetailPage() {
 
   const handleCancelJob = async () => {
     if (!id) return;
-    if (!confirm('Are you sure you want to cancel this job?')) return;
 
     setActionLoading(true);
     setError('');
@@ -120,6 +132,8 @@ export default function JobDetailPage() {
     try {
       const updatedJob = await jobService.cancelJob(id);
       setJob(updatedJob);
+      // Reload to ensure fresh data
+      await loadJob();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to cancel job');
     } finally {
@@ -189,6 +203,13 @@ export default function JobDetailPage() {
       {error && (
         <div className="mb-6 rounded-md bg-red-50 p-4">
           <p className="text-sm text-red-800">{error}</p>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {success && (
+        <div className="mb-6 rounded-md bg-green-50 p-4">
+          <p className="text-sm text-green-800">{success}</p>
         </div>
       )}
 
