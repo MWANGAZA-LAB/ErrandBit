@@ -10,7 +10,15 @@ import { authenticate } from '../middleware/auth.js';
 const router = Router();
 const runnerController = new RunnerController();
 
-// All routes require authentication
+/**
+ * @route   GET /api/runners/search
+ * @desc    Search runners with filters (PUBLIC)
+ * @access  Public
+ * @note    Must be before authenticate middleware and /:id route
+ */
+router.get('/search', runnerController.searchRunners);
+
+// All other routes require authentication
 router.use(authenticate);
 
 /**
@@ -19,14 +27,6 @@ router.use(authenticate);
  * @access  Private (authenticated users)
  */
 router.post('/', runnerController.createRunnerProfile);
-
-/**
- * @route   GET /api/runners/search
- * @desc    Search runners with filters
- * @access  Private
- * @note    Must be before /:id route to avoid conflicts
- */
-router.get('/search', runnerController.searchRunners);
 
 /**
  * @route   GET /api/runners/me
