@@ -16,29 +16,35 @@ export default function FindRunnersPage() {
   
   const [runners, setRunners] = useState<RunnerProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [latitude, setLatitude] = useState(40.7128); // Default: NYC
   const [longitude, setLongitude] = useState(-74.0060);
   const [radius, setRadius] = useState(10);
 
   useEffect(() => {
-    /* AUTHENTICATION BYPASSED - Commented out for testing`n
-    if (!isAuthenticated) {`n
-      navigate('/login');`n
-      return;`n
-    }`n
-    */
+    try {
+      /* AUTHENTICATION BYPASSED - Commented out for testing
+      if (!isAuthenticated) {
+        navigate('/login');
+        return;
+      }
+      */
 
-    // Try to get user's location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLatitude(position.coords.latitude);
-          setLongitude(position.coords.longitude);
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-        }
-      );
+      // Try to get user's location
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setLatitude(position.coords.latitude);
+            setLongitude(position.coords.longitude);
+          },
+          (error) => {
+            console.error('Geolocation error:', error);
+          }
+        );
+      }
+    } catch (err) {
+      console.error('Error in geolocation setup:', err);
+      setError('Failed to initialize page');
     }
   }, [isAuthenticated, navigate]);
 
@@ -51,9 +57,15 @@ export default function FindRunnersPage() {
 
     try {
       const data = await runnerService.searchNearby(latitude, longitude, radius);
-      setRunners(data);
+      console.log('Runners data received:', data);
+      
+      // Ensure data is an array
+      const runnersArray = Array.isArray(data) ? data : [];
+      setRunners(runnersArray);
     } catch (err: any) {
+      console.error('Error loading runners:', err);
       toast.error(err.response?.data?.error || 'Failed to load runners');
+      setRunners([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -61,6 +73,22 @@ export default function FindRunnersPage() {
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">{error}</h3>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="md:flex md:items-center md:justify-between mb-8">
         <div className="flex-1 min-w-0">
@@ -195,40 +223,42 @@ export default function FindRunnersPage() {
 
                   {/* Bio */}
                   <p className="text-sm text-gray-600 line-clamp-3 mb-4">
-                    {runner.bio}
+                    {runner.bio || 'No bio available'}
                   </p>
 
                   {/* Tags */}
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-2">
-                      {runner.tags.slice(0, 3).map((tag: string) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 capitalize"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                      {runner.tags.length > 3 && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          +{runner.tags.length - 3} more
-                        </span>
-                      )}
+                  {runner.tags && runner.tags.length > 0 && (
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-2">
+                        {runner.tags.slice(0, 3).map((tag: string) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 capitalize"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {runner.tags.length > 3 && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            +{runner.tags.length - 3} more
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Stats */}
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
                     <div>
                       <div className="text-xs text-gray-500">Total Jobs</div>
-                      <div className="text-lg font-semibold text-gray-900">{runner.totalJobs}</div>
+                      <div className="text-lg font-semibold text-gray-900">{runner.totalJobs || 0}</div>
                     </div>
                     <div>
                       <div className="text-xs text-gray-500">Rating</div>
                       <div className="text-lg font-semibold text-gray-900">
                         {runner.avgRating ? (
                           <span className="flex items-center">
-                            {runner.avgRating.toFixed(1)}
+                            {Number(runner.avgRating).toFixed(1)}
                             <svg className="w-4 h-4 text-yellow-400 ml-1" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                             </svg>
@@ -241,11 +271,11 @@ export default function FindRunnersPage() {
                   </div>
 
                   {/* Hourly Rate */}
-                  {runner.hourlyRate && (
+                  {runner.hourlyRate && runner.hourlyRate > 0 && (
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <div className="text-sm text-gray-500">Hourly Rate</div>
                       <div className="text-xl font-bold text-indigo-600">
-                        ${runner.hourlyRate.toFixed(2)}/hr
+                        ${(runner.hourlyRate / 100).toFixed(2)}/hr
                       </div>
                     </div>
                   )}

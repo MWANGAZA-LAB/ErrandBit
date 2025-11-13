@@ -96,10 +96,15 @@ export default function JobDetailPage() {
       console.log('Accepting job:', id);
       const updatedJob = await jobService.assignJob(id);
       console.log('Job accepted successfully:', updatedJob);
+      
+      // Update local state immediately
       setJob(updatedJob);
       setSuccess('Job accepted! You can now start working on it.');
-      // Reload to ensure fresh data
-      await loadJob();
+      
+      // Force reload from server to ensure we have latest data
+      setTimeout(async () => {
+        await loadJob();
+      }, 100);
     } catch (err: any) {
       console.error('Failed to accept job:', err);
       const errorMsg = err.response?.data?.error || err.message || 'Failed to assign job';

@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { simpleAuthService } from '../services/simple-auth.service';
 import { runnerService, RunnerProfile } from '../services/runner.service';
 import toast from 'react-hot-toast';
 
@@ -13,24 +14,42 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
   
+  // Support both OTP auth and simple auth
+  const simpleUser = simpleAuthService.getUser();
+  const currentUser = user || simpleUser;
+  const isUserAuthenticated = isAuthenticated || !!simpleUser;
+  
   const [runnerProfile, setRunnerProfile] = useState<RunnerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
+    const initProfile = async () => {
+      try {
+        if (!isUserAuthenticated) {
+          navigate('/login');
+          return;
+        }
 
-    if (user) {
-      setDisplayName(user.display_name || '');
-      loadRunnerProfile();
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated, user, navigate]);
+        if (currentUser) {
+          // Handle both displayName (SimpleUser) and display_name (User)
+          const name = 'displayName' in currentUser 
+            ? currentUser.displayName 
+            : ('display_name' in currentUser ? (currentUser as any).display_name : '');
+          setDisplayName(name || '');
+          await loadRunnerProfile();
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing profile:', error);
+        setLoading(false);
+      }
+    };
+
+    initProfile();
+  }, [isUserAuthenticated, navigate]);
 
   const loadRunnerProfile = async () => {
     setLoading(true);
@@ -47,7 +66,9 @@ export default function ProfilePage() {
   };
 
   const handleLogout = () => {
+    // Logout from both auth systems
     logout();
+    simpleAuthService.logout();
     navigate('/login');
     toast.success('Logged out successfully');
   };
@@ -115,8 +136,10 @@ export default function ProfilePage() {
         <div className="px-6 py-5">
           <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
             <div>
-              <dt className="text-sm font-medium text-gray-500">Phone Number</dt>
-              <dd className="mt-1 text-sm text-gray-900">{user?.phone}</dd>
+              <dt className="text-sm font-medium text-gray-500">Username</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {'username' in (currentUser || {}) ? (currentUser as any).username : (currentUser as any)?.phone || 'N/A'}
+              </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500">Display Name</dt>
@@ -129,19 +152,19 @@ export default function ProfilePage() {
                     className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 ) : (
-                  user?.display_name || 'Not set'
+                  displayName || 'Not set'
                 )}
               </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500">Member Since</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+                {'created_at' in (currentUser || {}) ? new Date((currentUser as any).created_at).toLocaleDateString() : 'N/A'}
               </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500">User ID</dt>
-              <dd className="mt-1 text-sm text-gray-900 font-mono text-xs">{user?.id}</dd>
+              <dd className="mt-1 text-xs text-gray-900 font-mono">{currentUser?.id}</dd>
             </div>
           </dl>
         </div>
@@ -169,35 +192,37 @@ export default function ProfilePage() {
             <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <dt className="text-sm font-medium text-gray-500">Bio</dt>
-                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.bio}</dd>
+                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.bio || 'No bio set'}</dd>
               </div>
-              <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500">Service Tags</dt>
-                <dd className="mt-2 flex flex-wrap gap-2">
-                  {runnerProfile.tags.map((tag: string) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800 capitalize"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </dd>
-              </div>
+              {runnerProfile.tags && runnerProfile.tags.length > 0 && (
+                <div className="sm:col-span-2">
+                  <dt className="text-sm font-medium text-gray-500">Service Tags</dt>
+                  <dd className="mt-2 flex flex-wrap gap-2">
+                    {runnerProfile.tags.map((tag: string) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800 capitalize"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </dd>
+                </div>
+              )}
               <div>
                 <dt className="text-sm font-medium text-gray-500">Total Jobs</dt>
-                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.totalJobs}</dd>
+                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.totalJobs || 0}</dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-gray-500">Completion Rate</dt>
-                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.completionRate ? `${runnerProfile.completionRate.toFixed(1)}%` : 'N/A'}</dd>
+                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.completionRate ? `${Number(runnerProfile.completionRate).toFixed(1)}%` : 'N/A'}</dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-gray-500">Average Rating</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   {runnerProfile.avgRating ? (
                     <span className="flex items-center">
-                      {runnerProfile.avgRating.toFixed(1)}
+                      {Number(runnerProfile.avgRating).toFixed(1)}
                       <svg className="w-4 h-4 text-yellow-400 ml-1" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
@@ -209,13 +234,13 @@ export default function ProfilePage() {
               </div>
               <div>
                 <dt className="text-sm font-medium text-gray-500">Service Radius</dt>
-                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.serviceRadius} km</dd>
+                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.serviceRadius || 10} km</dd>
               </div>
-              {runnerProfile.hourlyRate && (
+              {runnerProfile.hourlyRate && runnerProfile.hourlyRate > 0 && (
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Hourly Rate</dt>
                   <dd className="mt-1 text-sm text-gray-900">
-                    ${runnerProfile.hourlyRate.toFixed(2)}/hr
+                    ${(runnerProfile.hourlyRate / 100).toFixed(2)}/hr
                   </dd>
                 </div>
               )}

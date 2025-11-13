@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { jobService, Job } from '../services/job.service';
+import { simpleAuthService } from '../services/simple-auth.service';
 import { formatCentsAsUsd } from '../utils/currency';
 import UniversalPayment from '../components/UniversalPayment';
 import axios from 'axios';
@@ -18,6 +19,11 @@ export default function PaymentPage() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   
+  // Support both OTP auth and simple auth
+  const simpleUser = simpleAuthService.getUser();
+  const currentUser = user || simpleUser;
+  const isUserAuthenticated = isAuthenticated || !!simpleUser;
+  
   const [job, setJob] = useState<Job | null>(null);
   const [invoice, setInvoice] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,8 +32,13 @@ export default function PaymentPage() {
   const [showPayment, setShowPayment] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
+  // Helper to get auth token from either OTP auth or simple auth
+  const getAuthToken = () => {
+    return localStorage.getItem('token') || localStorage.getItem('auth_token');
+  };
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isUserAuthenticated) {
       navigate('/login');
       return;
     }
@@ -35,7 +46,7 @@ export default function PaymentPage() {
     if (id) {
       loadJob();
     }
-  }, [id, isAuthenticated, navigate]);
+  }, [id, isUserAuthenticated, navigate]);
 
   const loadJob = async () => {
     if (!id) return;
@@ -54,7 +65,7 @@ export default function PaymentPage() {
       }
 
       // Check if user is the client
-      if (data.clientId !== Number(user?.id)) {
+      if (data.clientId !== Number(currentUser?.id)) {
         setError('Only the job client can make payment');
         return;
       }
@@ -75,7 +86,7 @@ export default function PaymentPage() {
       // Convert cents to sats (rough conversion: 1 USD = 2000 sats)
       const amountSats = Math.floor((job.priceCents / 100) * 2000);
       
-      const token = localStorage.getItem('token');
+      const token = getAuthToken();
       const response = await axios.post(
         `${API_URL}/api/payments/create-invoice-multi-wallet`,
         {
@@ -103,7 +114,7 @@ export default function PaymentPage() {
     if (!invoice || !id) return;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = getAuthToken();
       await axios.post(
         `${API_URL}/api/payments/verify-multi-wallet`,
         {

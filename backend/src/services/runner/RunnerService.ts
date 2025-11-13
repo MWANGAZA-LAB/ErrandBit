@@ -65,12 +65,18 @@ export class RunnerService {
       throw new ConflictError('Runner profile already exists', 'PROFILE_EXISTS');
     }
 
-    // Validate display name
-    if (data.displayName.trim().length < 2) {
+    // Validate display name exists
+    if (!data.displayName) {
+      throw new ValidationError('Display name is required', 'MISSING_DISPLAY_NAME');
+    }
+
+    // Validate display name length
+    const trimmedName = data.displayName.trim();
+    if (trimmedName.length < 2) {
       throw new ValidationError('Display name must be at least 2 characters', 'NAME_TOO_SHORT');
     }
 
-    if (data.displayName.length > 100) {
+    if (trimmedName.length > 100) {
       throw new ValidationError('Display name must be less than 100 characters', 'NAME_TOO_LONG');
     }
 

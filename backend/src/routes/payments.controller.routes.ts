@@ -63,4 +63,11 @@ router.get('/', paymentController.listPayments);
  */
 router.post('/:id/confirm', paymentController.confirmPayment);
 
+/**
+ * @route   POST /api/payments/create-invoice-multi-wallet
+ * @desc    Create Lightning invoice for multi-wallet payment
+ * @access  Private
+ */
+router.post('/create-invoice-multi-wallet', paymentController.createInvoiceMultiWallet);
+
 export default router;

@@ -27,6 +27,7 @@ import jobsControllerRouter from './routes/jobs.controller.routes.js';
 import runnersControllerRouter from './routes/runners.controller.routes.js';
 import paymentsControllerRouter from './routes/payments.controller.routes.js';
 import reviewsControllerRouter from './routes/reviews.controller.routes.js';
+import earningsRouter from './routes/earnings.routes.js';
 import adminRouter from './routes/admin.js';
 
 // TypeScript modules
@@ -84,6 +85,7 @@ app.use('/api/jobs', jobsControllerRouter);
 app.use('/api/runners', runnersControllerRouter);
 app.use('/api/payments', paymentLimiter, paymentsControllerRouter);
 app.use('/api/reviews', reviewsControllerRouter);
+app.use('/api/earnings', earningsRouter);
 app.use('/api/admin', adminRouter);
 
 // Error handling - New centralized handlers

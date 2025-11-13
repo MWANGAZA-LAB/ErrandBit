@@ -222,14 +222,34 @@ export class JobService {
 
     logger.info('Runner assigned successfully', { jobId, runnerId });
 
-    return {
-      id: updatedJob.id,
-      clientId: updatedJob.client_id,
-      runnerId: updatedJob.runner_id,
-      title: updatedJob.title,
-      status: updatedJob.status,
-      acceptedAt: updatedJob.accepted_at,
-    };
+    // Return complete job object for frontend
+    return updatedJob;
+  }
+
+  /**
+   * Start job (transition from accepted to in_progress)
+   */
+  async startJob(jobId: number, runnerId: number): Promise<any> {
+    logger.info('Starting job', { jobId, runnerId });
+
+    const job = await this.jobRepository.findById(jobId);
+
+    // Verify runner is assigned
+    if (job.runner_id !== runnerId) {
+      throw new ConflictError('You are not assigned to this job', 'NOT_ASSIGNED_RUNNER');
+    }
+
+    // Verify job is accepted
+    if (job.status !== 'accepted') {
+      throw new ConflictError('Job must be in accepted status to start', 'INVALID_JOB_STATUS');
+    }
+
+    const updatedJob = await this.jobRepository.updateStatus(jobId, 'in_progress');
+
+    logger.info('Job started successfully', { jobId });
+
+    // Return complete job object for frontend
+    return updatedJob;
   }
 
   /**
@@ -245,20 +265,18 @@ export class JobService {
       throw new ConflictError('You are not assigned to this job', 'NOT_ASSIGNED_RUNNER');
     }
 
-    // Verify job is accepted
-    if (job.status !== 'accepted') {
-      throw new ConflictError('Job must be in accepted status', 'INVALID_JOB_STATUS');
+    // Verify job is in progress
+    if (job.status !== 'in_progress') {
+      throw new ConflictError('Job must be in progress to complete', 'INVALID_JOB_STATUS');
     }
 
-    const updatedJob = await this.jobRepository.updateStatus(jobId, 'completed');
+    // When runner completes job, it moves to awaiting_payment status
+    const updatedJob = await this.jobRepository.updateStatus(jobId, 'awaiting_payment');
 
     logger.info('Job completed successfully', { jobId });
 
-    return {
-      id: updatedJob.id,
-      status: updatedJob.status,
-      completedAt: updatedJob.completed_at,
-    };
+    // Return complete job object for frontend
+    return updatedJob;
   }
 
   /**
@@ -344,6 +362,7 @@ export class JobService {
 
     return jobs.map(job => ({
       id: job.id,
+      clientId: job.client_id,
       title: job.title,
       description: job.description,
       priceCents: job.price_cents,
@@ -351,6 +370,7 @@ export class JobService {
       runnerId: job.runner_id,
       deadline: job.deadline,
       createdAt: job.created_at,
+      completedAt: job.completed_at,
     }));
   }
 

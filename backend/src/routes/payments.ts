@@ -28,6 +28,7 @@ import {
   recordPaymentTransaction,
   PaymentVerificationLevel
 } from '../services/PaymentService';
+import { payoutService } from '../services/PayoutService';
 
 const router = Router();
 
@@ -326,6 +327,22 @@ router.post(
              WHERE payment_hash = $3`,
             [proof, PaymentVerificationLevel.CRYPTOGRAPHIC, paymentHash]
           );
+
+          // AUTOMATICALLY TRIGGER RUNNER PAYOUT
+          console.log(`Processing automatic payout for job ${jobId}...`);
+          
+          // Process payout asynchronously (don't block response)
+          payoutService.processJobPayout(jobId)
+            .then((success) => {
+              if (success) {
+                console.log(`Runner payout completed for job ${jobId}`);
+              } else {
+                console.error(`Runner payout failed for job ${jobId}`);
+              }
+            })
+            .catch((error) => {
+              console.error(`Runner payout error for job ${jobId}:`, error);
+            });
         }
       }
 

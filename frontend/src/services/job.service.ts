@@ -114,8 +114,13 @@ class JobService {
   }
 
   async startJob(id: number | string): Promise<Job> {
-    // Start is handled by assign in new API
-    return this.assignJob(id);
+    const response = await axios.post(
+      `${API_BASE}/jobs/${id}/start`,
+      {},
+      { headers: this.getHeaders() }
+    );
+    const apiJob = response.data.data || response.data.job;
+    return transformJob(apiJob);
   }
 
   async completeJob(id: number | string): Promise<Job> {

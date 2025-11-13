@@ -30,6 +30,7 @@ export interface RunnerProfile {
 }
 
 export interface CreateRunnerInput {
+  displayName: string;
   bio: string;
   tags: string[];
   hourlyRate?: number;
@@ -39,7 +40,7 @@ export interface CreateRunnerInput {
     lng: number;
     address?: string;
   };
-  available?: boolean;
+  available: boolean;
 }
 
 export interface UpdateRunnerInput {
@@ -110,8 +111,8 @@ class RunnerService {
   }
 
   async searchNearby(lat: number, lng: number, radius: number = 10): Promise<RunnerProfile[]> {
+    // Public endpoint - no auth required
     const response = await axios.get(`${API_BASE}/runners/search`, {
-      headers: this.getHeaders(),
       params: { lat, lng, radius }
     });
     return response.data.data || response.data.runners || [];

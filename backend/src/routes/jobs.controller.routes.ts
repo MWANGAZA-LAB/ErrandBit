@@ -78,6 +78,13 @@ router.delete('/:id', jobController.deleteJob);
 router.post('/:id/assign', jobController.assignRunner);
 
 /**
+ * @route   POST /api/jobs/:id/start
+ * @desc    Start job (transition to in_progress)
+ * @access  Private (assigned runner only)
+ */
+router.post('/:id/start', jobController.startJob);
+
+/**
  * @route   POST /api/jobs/:id/complete
  * @desc    Mark job as completed
  * @access  Private (assigned runner only)

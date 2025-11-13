@@ -202,4 +202,51 @@ export class PaymentController {
       throw error;
     }
   };
+
+  /**
+   * Create Lightning invoice for multi-wallet payment
+   * POST /api/payments/create-invoice-multi-wallet
+   */
+  createInvoiceMultiWallet = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      const { jobId, amountSats } = req.body;
+      const userId = req.userId;
+
+      if (!jobId || !amountSats) {
+        throw new ValidationError('Job ID and amount are required', 'MISSING_FIELDS');
+      }
+
+      if (!userId) {
+        throw new ValidationError('User ID is required', 'UNAUTHORIZED');
+      }
+
+      // Ensure userId is a number
+      const userIdNumber = typeof userId === 'number' ? userId : parseInt(String(userId), 10);
+
+      const invoice = await this.paymentService.createInvoiceForJob(
+        parseInt(jobId, 10),
+        parseInt(amountSats, 10),
+        userIdNumber
+      );
+
+      logger.info('Multi-wallet invoice created', { jobId, amountSats, userId });
+
+      res.status(200).json({
+        success: true,
+        invoice: {
+          paymentRequest: invoice.paymentRequest,
+          paymentHash: invoice.paymentHash,
+          amountSats: invoice.amountSats,
+          expiresAt: invoice.expiresAt,
+        },
+        // Only include test preimage in development
+        ...(process.env.NODE_ENV === 'development' && {
+          _testPreimage: invoice._testPreimage,
+        }),
+      });
+    } catch (error) {
+      logger.error('Error creating multi-wallet invoice', { error, body: req.body });
+      throw error;
+    }
+  };
 }

@@ -33,6 +33,7 @@ export default function CreateRunnerProfile() {
   
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateRunnerInput>({
+    displayName: '',
     bio: '',
     tags: [],
     hourlyRate: undefined,
@@ -100,6 +101,11 @@ export default function CreateRunnerProfile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!formData.displayName || formData.displayName.trim().length < 2) {
+      toast.error('Display name must be at least 2 characters');
+      return;
+    }
+
     if (formData.tags.length === 0) {
       toast.error('Please select at least one tag');
       return;
@@ -133,6 +139,28 @@ export default function CreateRunnerProfile() {
 
       <div className="bg-white shadow sm:rounded-lg">
         <form onSubmit={handleSubmit} className="space-y-6 p-6">
+          {/* Display Name */}
+          <div>
+            <label htmlFor="displayName" className="block text-sm font-medium text-gray-700">
+              Display Name *
+            </label>
+            <p className="mt-1 text-xs text-gray-500">
+              This name will be visible to clients
+            </p>
+            <input
+              type="text"
+              name="displayName"
+              id="displayName"
+              required
+              minLength={2}
+              maxLength={100}
+              value={formData.displayName}
+              onChange={handleChange}
+              placeholder="John Runner"
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+
           {/* Bio */}
           <div>
             <label htmlFor="bio" className="block text-sm font-medium text-gray-700">

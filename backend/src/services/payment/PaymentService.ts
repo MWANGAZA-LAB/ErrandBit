@@ -267,4 +267,49 @@ export class PaymentService {
       return false;
     }
   }
+
+  /**
+   * Create Lightning invoice for a job
+   * Used by multi-wallet payment flow
+   */
+  async createInvoiceForJob(
+    jobId: number,
+    amountSats: number,
+    userId: number
+  ): Promise<{
+    paymentRequest: string;
+    paymentHash: string;
+    amountSats: number;
+    expiresAt: Date;
+    _testPreimage?: string;
+  }> {
+    logger.info('Creating invoice for job', { jobId, amountSats, userId });
+
+    // Verify job exists and user is authorized
+    const job = await this.jobRepository.findById(jobId);
+
+    if (job.client_id !== userId) {
+      throw new ValidationError('You can only create invoices for your own jobs', 'UNAUTHORIZED');
+    }
+
+    // Mock invoice for testing (same as old PaymentService)
+    // In production, integrate with LNBits, LND, CLN, etc.
+    const preimage = crypto.randomBytes(32).toString('hex');
+    
+    // Compute correct hash from preimage
+    const preimageBuffer = Buffer.from(preimage, 'hex');
+    const correctHash = crypto.createHash('sha256').update(preimageBuffer).digest('hex');
+    
+    const invoice = {
+      paymentRequest: `lnbc${amountSats}n1...mock_invoice_${correctHash.substring(0, 8)}`,
+      paymentHash: correctHash,
+      amountSats,
+      expiresAt: new Date(Date.now() + 3600000), // 1 hour
+      _testPreimage: preimage
+    };
+
+    logger.info('Invoice created', { jobId, paymentHash: correctHash.substring(0, 10) + '...' });
+
+    return invoice;
+  }
 }

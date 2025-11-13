@@ -202,6 +202,34 @@ export class JobController {
   };
 
   /**
+   * Start job
+   * POST /api/jobs/:id/start
+   */
+  startJob = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      const jobId = parseInt(req.params['id'] as string, 10);
+      const runnerId = this.ensureUserId(req.user?.id);
+
+      if (isNaN(jobId)) {
+        throw new ValidationError('Invalid job ID', 'INVALID_ID');
+      }
+
+      const updatedJob = await this.jobService.startJob(jobId, runnerId);
+
+      logger.info('Job started', { jobId, runnerId });
+
+      res.status(200).json({
+        success: true,
+        data: updatedJob,
+        message: 'Job started successfully',
+      });
+    } catch (error) {
+      logger.error('Error starting job', { error, jobId: req.params['id'] });
+      throw error;
+    }
+  };
+
+  /**
    * Complete job
    * POST /api/jobs/:id/complete
    */
@@ -293,17 +321,31 @@ export class JobController {
   };
 
   /**
-   * Get jobs for current user (client)
+   * Get jobs for current user (both as client and runner)
    * GET /api/jobs/my-jobs
    */
   getMyJobs = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const clientId = this.ensureUserId(req.user?.id);
+      const userId = this.ensureUserId(req.user?.id);
 
-      const limit = req.query['limit'] ? parseInt(req.query['limit'] as string, 10) : 20;
+      const limit = req.query['limit'] ? parseInt(req.query['limit'] as string, 10) : 100;
       const offset = req.query['offset'] ? parseInt(req.query['offset'] as string, 10) : 0;
 
-      const jobs = await this.jobService.getJobsByClient(clientId, limit, offset);
+      // Get jobs posted by user (as client) AND jobs assigned to user (as runner)
+      const [clientJobs, runnerJobs] = await Promise.all([
+        this.jobService.getJobsByClient(userId, limit, offset),
+        this.jobService.getJobsByRunner(userId, limit, offset)
+      ]);
+
+      // Combine and deduplicate jobs
+      const jobMap = new Map();
+      [...clientJobs, ...runnerJobs].forEach(job => {
+        if (!jobMap.has(job.id)) {
+          jobMap.set(job.id, job);
+        }
+      });
+
+      const jobs = Array.from(jobMap.values());
 
       res.status(200).json({
         success: true,
