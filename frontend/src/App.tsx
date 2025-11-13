@@ -10,8 +10,11 @@
 
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
+import { queryClient } from './lib/react-query';
 import ErrorBoundary from './components/ErrorBoundary';
 import { PageLoader } from './components/LoadingSkeletons';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
@@ -35,14 +38,15 @@ const ProfileEditPage = lazy(() => import('./pages/ProfileEditPage'));
 export default function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        {/* Skip to main content link for accessibility */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Skip to main content
-        </a>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          {/* Skip to main content link for accessibility */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Skip to main content
+          </a>
 
         {/* @ts-ignore - React 19 type compatibility */}
         <Toaster 
@@ -110,6 +114,10 @@ export default function App() {
         <PWAInstallPrompt />
         <PWAUpdateNotification />
       </AuthProvider>
+      
+      {/* React Query Devtools - only in development */}
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+    </QueryClientProvider>
     </ErrorBoundary>
-  );
+  )
 }

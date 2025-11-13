@@ -8,7 +8,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { simpleAuthService } from '../services/simple-auth.service';
 import toast from 'react-hot-toast';
-import { api } from '../api';
+import {
+  usePreferences,
+  useUpdateProfile,
+  useChangePassword,
+  useUpdatePreferences,
+  useSecurityLog,
+} from '../hooks/useProfile';
 
 interface ProfileData {
   displayName?: string;
@@ -71,12 +77,17 @@ export default function ProfileEditPage() {
   });
 
   // Security log state
-  const [securityLog, setSecurityLog] = useState<SecurityLogEntry[]>([]);
   const [showSecurityLog, setShowSecurityLog] = useState(false);
+
+  // React Query hooks
+  const { data: preferencesData, isLoading: preferencesLoading } = usePreferences();
+  const { data: securityLogData, refetch: refetchSecurityLog } = useSecurityLog(20);
+  const updateProfileMutation = useUpdateProfile();
+  const changePasswordMutation = useChangePassword();
+  const updatePreferencesMutation = useUpdatePreferences();
 
   // UI state
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'security'>('profile');
 
   useEffect(() => {
@@ -85,8 +96,14 @@ export default function ProfileEditPage() {
       return;
     }
     loadProfile();
-    loadPreferences();
   }, [isUserAuthenticated, navigate]);
+
+  // Sync preferences from React Query
+  useEffect(() => {
+    if (preferencesData) {
+      setPreferences(preferencesData);
+    }
+  }, [preferencesData]);
 
   const loadProfile = async () => {
     try {
@@ -109,30 +126,6 @@ export default function ProfileEditPage() {
     }
   };
 
-  const loadPreferences = async () => {
-    try {
-      const response = await api.get('/profile/preferences');
-      if (response.data.success) {
-        setPreferences(response.data.preferences);
-      }
-    } catch (error: any) {
-      console.error('Error loading preferences:', error);
-      // Don't show error toast on initial load
-    }
-  };
-
-  const loadSecurityLog = async () => {
-    try {
-      const response = await api.get('/profile/security-log?limit=20');
-      if (response.data.success) {
-        setSecurityLog(response.data.logs);
-      }
-    } catch (error: any) {
-      console.error('Error loading security log:', error);
-      toast.error('Failed to load security log');
-    }
-  };
-
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -142,24 +135,7 @@ export default function ProfileEditPage() {
       return;
     }
 
-    try {
-      setSaving(true);
-      const response = await api.put('/profile', profile);
-      
-      if (response.data.success) {
-        toast.success('Profile updated successfully');
-        
-        // Update theme if changed
-        if (profile.themePreference) {
-          applyTheme(profile.themePreference);
-        }
-      }
-    } catch (error: any) {
-      console.error('Error updating profile:', error);
-      toast.error(error.response?.data?.error || 'Failed to update profile');
-    } finally {
-      setSaving(false);
-    }
+    updateProfileMutation.mutate(profile);
   };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -190,41 +166,19 @@ export default function ProfileEditPage() {
       return;
     }
 
-    try {
-      setSaving(true);
-      const response = await api.post('/profile/change-password', {
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword,
-      });
-
-      if (response.data.success) {
-        toast.success('Password changed successfully');
+    changePasswordMutation.mutate({
+      currentPassword: passwordData.currentPassword,
+      newPassword: passwordData.newPassword,
+    }, {
+      onSuccess: () => {
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      }
-    } catch (error: any) {
-      console.error('Error changing password:', error);
-      toast.error(error.response?.data?.error || 'Failed to change password');
-    } finally {
-      setSaving(false);
-    }
+      },
+    });
   };
 
   const handlePreferencesUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    try {
-      setSaving(true);
-      const response = await api.put('/profile/preferences', preferences);
-
-      if (response.data.success) {
-        toast.success('Preferences updated successfully');
-      }
-    } catch (error: any) {
-      console.error('Error updating preferences:', error);
-      toast.error(error.response?.data?.error || 'Failed to update preferences');
-    } finally {
-      setSaving(false);
-    }
+    updatePreferencesMutation.mutate(preferences);
   };
 
   const isValidLightningAddress = (address: string): boolean => {
@@ -232,18 +186,9 @@ export default function ProfileEditPage() {
     return regex.test(address);
   };
 
-  const applyTheme = (theme: 'light' | 'dark' | 'system') => {
-    if (theme === 'system') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.classList.toggle('dark', prefersDark);
-    } else {
-      document.documentElement.classList.toggle('dark', theme === 'dark');
-    }
-  };
-
   const handleViewSecurityLog = async () => {
     setShowSecurityLog(true);
-    await loadSecurityLog();
+    await refetchSecurityLog();
   };
 
   if (loading) {
@@ -465,10 +410,10 @@ export default function ProfileEditPage() {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={saving}
+              disabled={updateProfileMutation.isPending}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {saving ? (
+              {updateProfileMutation.isPending ? (
                 <>
                   <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -617,10 +562,10 @@ export default function ProfileEditPage() {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={saving}
+              disabled={updatePreferencesMutation.isPending}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {saving ? 'Saving...' : 'Save Preferences'}
+              {updatePreferencesMutation.isPending ? 'Saving...' : 'Save Preferences'}
             </button>
           </div>
         </form>
@@ -685,10 +630,10 @@ export default function ProfileEditPage() {
               <div className="flex justify-end pt-2">
                 <button
                   type="submit"
-                  disabled={saving}
+                  disabled={changePasswordMutation.isPending}
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                 >
-                  {saving ? 'Changing...' : 'Change Password'}
+                  {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
                 </button>
               </div>
             </div>
@@ -716,11 +661,11 @@ export default function ProfileEditPage() {
             
             {showSecurityLog && (
               <div className="px-6 py-5">
-                {securityLog.length === 0 ? (
+                {!securityLogData || securityLogData.length === 0 ? (
                   <p className="text-sm text-gray-500">No security events recorded</p>
                 ) : (
                   <div className="space-y-3">
-                    {securityLog.map((entry) => (
+                    {securityLogData.map((entry) => (
                       <div key={entry.id} className="flex items-start border-b border-gray-200 pb-3 last:border-0">
                         <div className="flex-shrink-0">
                           <div className={`w-2 h-2 mt-2 rounded-full ${entry.success ? 'bg-green-400' : 'bg-red-400'}`}></div>
