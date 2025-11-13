@@ -4,7 +4,7 @@
 
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { api } from '../api';
-import { queryKeys } from '../lib/react-query';
+import { queryKeys } from '../lib/queryClient';
 import toast from 'react-hot-toast';
 
 interface ProfileData {
@@ -41,7 +41,7 @@ export function usePreferences(
   options?: Omit<UseQueryOptions<Preferences, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: queryKeys.profile.preferences(),
+    queryKey: queryKeys.profilePreferences,
     queryFn: async () => {
       const response = await api.get('/profile/preferences');
       return response.data.preferences;
@@ -59,7 +59,7 @@ export function useSecurityLog(
   options?: Omit<UseQueryOptions<SecurityLogEntry[], Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: queryKeys.profile.securityLog(),
+    queryKey: queryKeys.profileSecurityLog(limit),
     queryFn: async () => {
       const response = await api.get(`/profile/security-log?limit=${limit}`);
       return response.data.logs;
@@ -82,7 +82,7 @@ export function useUpdateProfile() {
       return response.data.user;
     },
     onSuccess: (updatedUser) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.profile.me() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.profile });
       
       // Apply theme if changed
       if (updatedUser.theme_preference) {
@@ -128,20 +128,20 @@ export function useUpdatePreferences() {
     },
     onMutate: async (newPreferences) => {
       // Optimistic update
-      await queryClient.cancelQueries({ queryKey: queryKeys.profile.preferences() });
-      const previousPreferences = queryClient.getQueryData<Preferences>(queryKeys.profile.preferences());
+      await queryClient.cancelQueries({ queryKey: queryKeys.profilePreferences });
+      const previousPreferences = queryClient.getQueryData<Preferences>(queryKeys.profilePreferences);
 
-      queryClient.setQueryData<Preferences>(queryKeys.profile.preferences(), newPreferences);
+      queryClient.setQueryData<Preferences>(queryKeys.profilePreferences, newPreferences);
 
       return { previousPreferences };
     },
     onSuccess: (updatedPreferences) => {
-      queryClient.setQueryData(queryKeys.profile.preferences(), updatedPreferences);
+      queryClient.setQueryData(queryKeys.profilePreferences, updatedPreferences);
       toast.success('Preferences updated successfully');
     },
     onError: (error: any, _, context) => {
       if (context?.previousPreferences) {
-        queryClient.setQueryData(queryKeys.profile.preferences(), context.previousPreferences);
+        queryClient.setQueryData(queryKeys.profilePreferences, context.previousPreferences);
       }
       toast.error(error.response?.data?.error || 'Failed to update preferences');
     },
@@ -160,7 +160,7 @@ export function useUploadAvatar() {
       return response.data.avatar;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.profile.me() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.profile });
       toast.success('Avatar uploaded successfully');
     },
     onError: (error: any) => {
