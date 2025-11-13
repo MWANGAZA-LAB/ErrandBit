@@ -179,9 +179,14 @@ export default function RunnerEarningsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            💰 Earnings Dashboard
-          </h1>
+          <div className="flex items-center space-x-3 mb-2">
+            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <DollarSign className="w-8 h-8 text-green-600 dark:text-green-400" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Earnings Dashboard
+            </h1>
+          </div>
           <p className="text-gray-600 dark:text-gray-400">
             Track your earnings and payout history
           </p>
@@ -203,9 +208,10 @@ export default function RunnerEarningsPage() {
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {formatCurrency(summary?.totalEarnedCents || 0)}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-              ⚡ {(summary?.totalEarnedSats || 0).toLocaleString()} sats
-            </p>
+            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <Zap className="w-3 h-3 mr-1" />
+              {(summary?.totalEarnedSats || 0).toLocaleString()} sats
+            </div>
           </div>
 
           {/* Pending Payouts */}
@@ -385,8 +391,9 @@ export default function RunnerEarningsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                           <div>{formatCurrency(item.netAmountCents)}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            ⚡ {item.netAmountSats.toLocaleString()} sats
+                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            <Zap className="w-3 h-3 mr-1" />
+                            {item.netAmountSats.toLocaleString()} sats
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

@@ -100,18 +100,19 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="md:flex md:items-center md:justify-between mb-8">
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
             My Profile
           </h2>
         </div>
         <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3">
           <button
             onClick={() => navigate('/profile/edit')}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
           >
             <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -128,7 +129,7 @@ export default function ProfilePage() {
           )}
           <button
             onClick={handleLogout}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
           >
             Logout
           </button>
@@ -136,23 +137,23 @@ export default function ProfilePage() {
       </div>
 
       {/* User Info */}
-      <div className="bg-white shadow rounded-lg mb-6">
-        <div className="px-6 py-5 border-b border-gray-200">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
+      <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg mb-6 transition-colors">
+        <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
             Account Information
           </h3>
         </div>
         <div className="px-6 py-5">
           <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
             <div>
-              <dt className="text-sm font-medium text-gray-500">Username</dt>
-              <dd className="mt-1 text-sm text-gray-900">
+              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Username</dt>
+              <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                 {'username' in (currentUser || {}) ? (currentUser as any).username : (currentUser as any)?.phone || 'N/A'}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Display Name</dt>
-              <dd className="mt-1 text-sm text-gray-900">
+              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Display Name</dt>
+              <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                 {editMode ? (
                   <input
                     type="text"
@@ -166,14 +167,14 @@ export default function ProfilePage() {
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Member Since</dt>
-              <dd className="mt-1 text-sm text-gray-900">
+              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Member Since</dt>
+              <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                 {'created_at' in (currentUser || {}) ? new Date((currentUser as any).created_at).toLocaleDateString() : 'N/A'}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">User ID</dt>
-              <dd className="mt-1 text-xs text-gray-900 font-mono">{currentUser?.id}</dd>
+              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">User ID</dt>
+              <dd className="mt-1 text-xs text-gray-900 dark:text-gray-100 font-mono">{currentUser?.id}</dd>
             </div>
           </dl>
         </div>
@@ -181,17 +182,17 @@ export default function ProfilePage() {
 
       {/* Runner Profile */}
       {runnerProfile && (
-        <div className="bg-white shadow rounded-lg mb-6">
-          <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">
+        <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg mb-6 transition-colors">
+          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
               Runner Profile
             </h3>
             <button
               onClick={toggleAvailability}
-              className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full ${
+              className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full transition-colors ${
                 runnerProfile.available
-                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               {runnerProfile.available ? 'Available' : 'Unavailable'}
@@ -200,17 +201,17 @@ export default function ProfilePage() {
           <div className="px-6 py-5">
             <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500">Bio</dt>
-                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.bio || 'No bio set'}</dd>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Bio</dt>
+                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{runnerProfile.bio || 'No bio set'}</dd>
               </div>
               {runnerProfile.tags && runnerProfile.tags.length > 0 && (
                 <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-gray-500">Service Tags</dt>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Service Tags</dt>
                   <dd className="mt-2 flex flex-wrap gap-2">
                     {runnerProfile.tags.map((tag: string) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800 capitalize"
+                        className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 capitalize"
                       >
                         {tag}
                       </span>
@@ -219,16 +220,16 @@ export default function ProfilePage() {
                 </div>
               )}
               <div>
-                <dt className="text-sm font-medium text-gray-500">Total Jobs</dt>
-                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.totalJobs || 0}</dd>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Jobs</dt>
+                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{runnerProfile.totalJobs || 0}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Completion Rate</dt>
-                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.completionRate ? `${Number(runnerProfile.completionRate).toFixed(1)}%` : 'N/A'}</dd>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Completion Rate</dt>
+                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{runnerProfile.completionRate ? `${Number(runnerProfile.completionRate).toFixed(1)}%` : 'N/A'}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Average Rating</dt>
-                <dd className="mt-1 text-sm text-gray-900">
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Average Rating</dt>
+                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                   {runnerProfile.avgRating ? (
                     <span className="flex items-center">
                       {Number(runnerProfile.avgRating).toFixed(1)}
@@ -242,13 +243,13 @@ export default function ProfilePage() {
                 </dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Service Radius</dt>
-                <dd className="mt-1 text-sm text-gray-900">{runnerProfile.serviceRadius || 10} km</dd>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Service Radius</dt>
+                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{runnerProfile.serviceRadius || 10} km</dd>
               </div>
               {runnerProfile.hourlyRate && runnerProfile.hourlyRate > 0 && (
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Hourly Rate</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Hourly Rate</dt>
+                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                     ${(runnerProfile.hourlyRate / 100).toFixed(2)}/hr
                   </dd>
                 </div>
@@ -308,6 +309,7 @@ export default function ProfilePage() {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
