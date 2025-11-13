@@ -23,8 +23,8 @@ export default function Layout() {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <nav className="bg-white shadow-sm border-b border-gray-200" role="navigation" aria-label="Main navigation">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors duration-200">
+      <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -34,7 +34,7 @@ export default function Layout() {
                     <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <span className="text-xl font-bold text-gray-900 tracking-tight">ErrandBit</span>
+                <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors duration-200">ErrandBit</span>
               </Link>
             </div>
             
@@ -43,29 +43,29 @@ export default function Layout() {
               <Link
                 to="/"
                 className={`${
-                  isActive('/') ? 'text-primary border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'
+                  isActive('/') ? 'text-primary border-b-2 border-primary' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 } px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded`}
                 aria-current={isActive('/') ? 'page' : undefined}
               >
                 Home
               </Link>
               <Link
-                to="/find-runners"
+                to="/runners"
                 className={`${
-                  isActive('/find-runners') ? 'text-primary border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'
+                  isActive('/runners') ? 'text-primary border-b-2 border-primary' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 } px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded`}
-                aria-current={isActive('/find-runners') ? 'page' : undefined}
+                aria-current={isActive('/runners') ? 'page' : undefined}
               >
-                Find Runners
+                Runners
               </Link>
               <Link
-                to="/my-jobs"
+                to="/jobs"
                 className={`${
-                  isActive('/my-jobs') ? 'text-primary border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'
+                  isActive('/jobs') ? 'text-primary border-b-2 border-primary' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 } px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded`}
-                aria-current={isActive('/my-jobs') ? 'page' : undefined}
+                aria-current={isActive('/jobs') ? 'page' : undefined}
               >
-                My Jobs
+                Jobs
               </Link>
               <Link
                 to="/profile"
@@ -81,10 +81,13 @@ export default function Layout() {
                 to="/earnings"
                 className={`${
                   isActive('/earnings') ? 'text-primary border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'
-                } px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded`}
+                } px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded flex items-center`}
                 aria-current={isActive('/earnings') ? 'page' : undefined}
               >
-                💰 Earnings
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Earnings
               </Link>
               
               {/* Auth buttons */}
@@ -187,7 +190,7 @@ export default function Layout() {
                 aria-current={isActive('/earnings') ? 'page' : undefined}
               >
                 <DollarSign className="mr-3 h-5 w-5" aria-hidden="true" />
-                💰 Earnings
+                Earnings
               </Link>
             </div>
           </div>

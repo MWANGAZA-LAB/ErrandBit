@@ -169,7 +169,7 @@ export default function UniversalPayment({
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
-              ⚡ Browser Wallet
+              Browser Wallet
             </button>
           )}
           <button
@@ -218,7 +218,7 @@ export default function UniversalPayment({
           <div className="space-y-4">
             <div className="bg-blue-50 p-4 rounded-lg">
               <p className="text-sm text-blue-800">
-                ⚡ Pay instantly with your browser wallet (Alby, Zeus, Mutiny, etc.)
+                Pay instantly with your browser wallet (Alby, Zeus, Mutiny, etc.)
               </p>
             </div>
             <button
@@ -250,7 +250,7 @@ export default function UniversalPayment({
               onClick={copyToClipboard}
               className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition"
             >
-              📋 Copy Invoice String
+              Copy Invoice String
             </button>
             <div className="text-xs text-gray-500 text-center pt-2">
               After paying, the payment will be automatically detected
@@ -263,7 +263,7 @@ export default function UniversalPayment({
           <div className="space-y-4">
             <div className="bg-yellow-50 p-4 rounded-lg">
               <p className="text-sm text-yellow-800">
-                📸 Upload a payment confirmation screenshot from your wallet
+                Upload a payment confirmation screenshot from your wallet
               </p>
             </div>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-500 transition">
@@ -279,7 +279,7 @@ export default function UniversalPayment({
                 className="cursor-pointer block"
               >
                 <div className="text-gray-600 mb-2">
-                  {uploadedImage ? '✅ Image uploaded' : '📁 Click to upload image'}
+                  {uploadedImage ? 'Image uploaded' : 'Click to upload image'}
                 </div>
                 <div className="text-xs text-gray-500">
                   PNG, JPG, or WebP (max 5MB)
@@ -296,7 +296,7 @@ export default function UniversalPayment({
                   Submit Payment Proof
                 </button>
                 <p className="text-xs text-gray-500 text-center">
-                  ⚠️ This will be manually verified by the runner
+                  This will be manually verified by the runner
                 </p>
               </div>
             )}
@@ -313,7 +313,7 @@ export default function UniversalPayment({
               onClick={copyToClipboard}
               className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition"
             >
-              📋 Copy Full Invoice
+              Copy Full Invoice
             </button>
             <div className="border-t pt-4 space-y-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">

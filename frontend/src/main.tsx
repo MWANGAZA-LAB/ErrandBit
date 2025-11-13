@@ -7,6 +7,10 @@ import App from './App'
 import './index.css'
 import { reportWebVitals } from './utils/webVitals'
 import { initErrorTracking } from './utils/errorTracking'
+import { initDarkMode } from './utils/darkMode'
+
+// Initialize dark mode IMMEDIATELY before React renders
+initDarkMode();
 
 // Configure React Query client with optimized defaults
 const queryClient = new QueryClient({

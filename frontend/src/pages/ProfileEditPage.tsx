@@ -55,7 +55,7 @@ export default function ProfileEditPage() {
     displayName: '',
     email: '',
     lightningAddress: '',
-    themePreference: 'system',
+    themePreference: 'dark',
     avatarUrl: '',
   });
 
@@ -102,7 +102,7 @@ export default function ProfileEditPage() {
           displayName: 'displayName' in currentUser ? currentUser.displayName : (currentUser as any).display_name || '',
           email: (currentUser as any).email || '',
           lightningAddress: (currentUser as any).lightning_address || '',
-          themePreference: (currentUser as any).theme_preference || 'system',
+          themePreference: (currentUser as any).theme_preference || 'dark',
           avatarUrl: (currentUser as any).avatar_url || '',
         });
       }
@@ -129,23 +129,26 @@ export default function ProfileEditPage() {
     }
   }, [preferencesData]);
 
-  // Apply theme changes immediately
+  // Apply theme changes immediately and save to localStorage
   useEffect(() => {
     const applyTheme = (theme: 'light' | 'dark' | 'system') => {
       const root = document.documentElement;
       
       if (theme === 'dark') {
         root.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
       } else if (theme === 'light') {
         root.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
       } else {
         // System preference
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         root.classList.toggle('dark', prefersDark);
+        localStorage.setItem('theme', 'system');
       }
     };
 
-    applyTheme(profile.themePreference || 'system');
+    applyTheme(profile.themePreference || 'dark');
   }, [profile.themePreference]);
 
   const handleProfileUpdate = async (e: React.FormEvent) => {

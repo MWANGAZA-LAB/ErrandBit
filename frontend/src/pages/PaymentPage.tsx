@@ -170,7 +170,7 @@ export default function PaymentPage() {
               </svg>
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-green-900 mb-2">Payment Confirmed! ⚡</h2>
+          <h2 className="text-2xl font-bold text-green-900 mb-2">Payment Confirmed!</h2>
           <p className="text-green-700 mb-6">
             Your payment has been successfully verified on the Lightning Network.
           </p>
@@ -277,7 +277,7 @@ export default function PaymentPage() {
             disabled={creating}
             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
           >
-            {creating ? 'Creating Invoice...' : '⚡ Generate Lightning Invoice'}
+            {creating ? 'Creating Invoice...' : 'Generate Lightning Invoice'}
           </button>
         </div>
       )}
