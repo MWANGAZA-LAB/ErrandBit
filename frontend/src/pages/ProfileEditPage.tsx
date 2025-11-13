@@ -3,7 +3,7 @@
  * Comprehensive profile management with Lightning address, theme, avatar, and security features
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { simpleAuthService } from '../services/simple-auth.service';
@@ -79,8 +79,10 @@ export default function ProfileEditPage() {
   // Security log state
   const [showSecurityLog, setShowSecurityLog] = useState(false);
 
-  // React Query hooks
-  const { data: preferencesData, isLoading: preferencesLoading } = usePreferences();
+  // React Query hooks - only fetch when authenticated
+  const { data: preferencesData, isLoading: preferencesLoading } = usePreferences({
+    enabled: isUserAuthenticated,
+  });
   const { data: securityLogData, refetch: refetchSecurityLog } = useSecurityLog(20);
   const updateProfileMutation = useUpdateProfile();
   const changePasswordMutation = useChangePassword();
@@ -90,13 +92,35 @@ export default function ProfileEditPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'security'>('profile');
 
+  // Load profile data from auth context
+  const loadProfile = useCallback(async () => {
+    try {
+      setLoading(true);
+      // Load current user data from auth context
+      if (currentUser) {
+        setProfile({
+          displayName: 'displayName' in currentUser ? currentUser.displayName : (currentUser as any).display_name || '',
+          email: (currentUser as any).email || '',
+          lightningAddress: (currentUser as any).lightning_address || '',
+          themePreference: (currentUser as any).theme_preference || 'system',
+          avatarUrl: (currentUser as any).avatar_url || '',
+        });
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      toast.error('Failed to load profile');
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser]);
+
   useEffect(() => {
     if (!isUserAuthenticated) {
       navigate('/login');
       return;
     }
     loadProfile();
-  }, [isUserAuthenticated, navigate]);
+  }, [isUserAuthenticated, navigate, loadProfile]);
 
   // Sync preferences from React Query
   useEffect(() => {
@@ -123,27 +147,6 @@ export default function ProfileEditPage() {
 
     applyTheme(profile.themePreference || 'system');
   }, [profile.themePreference]);
-
-  const loadProfile = async () => {
-    try {
-      setLoading(true);
-      // Load current user data from auth context
-      if (currentUser) {
-        setProfile({
-          displayName: 'displayName' in currentUser ? currentUser.displayName : (currentUser as any).display_name || '',
-          email: (currentUser as any).email || '',
-          lightningAddress: (currentUser as any).lightning_address || '',
-          themePreference: (currentUser as any).theme_preference || 'system',
-          avatarUrl: (currentUser as any).avatar_url || '',
-        });
-      }
-    } catch (error) {
-      console.error('Error loading profile:', error);
-      toast.error('Failed to load profile');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
