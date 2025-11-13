@@ -105,6 +105,25 @@ export default function ProfileEditPage() {
     }
   }, [preferencesData]);
 
+  // Apply theme changes immediately
+  useEffect(() => {
+    const applyTheme = (theme: 'light' | 'dark' | 'system') => {
+      const root = document.documentElement;
+      
+      if (theme === 'dark') {
+        root.classList.add('dark');
+      } else if (theme === 'light') {
+        root.classList.remove('dark');
+      } else {
+        // System preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.classList.toggle('dark', prefersDark);
+      }
+    };
+
+    applyTheme(profile.themePreference || 'system');
+  }, [profile.themePreference]);
+
   const loadProfile = async () => {
     try {
       setLoading(true);

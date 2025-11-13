@@ -126,7 +126,8 @@ test.describe('Profile Management', () => {
     
     if (hasTheme) {
       // Try to change theme
-      if (await themeSelect.first().tagName() === 'SELECT') {
+      const tagName = await themeSelect.first().evaluate(el => el.tagName);
+      if (tagName === 'SELECT') {
         await themeSelect.first().selectOption('dark');
       } else {
         await page.click('button:has-text("Dark")');
