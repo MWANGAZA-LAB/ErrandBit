@@ -197,10 +197,88 @@ export const idParamSchema = z.object({
   }),
 });
 
+// ============================================================================
+// Profile Edit Schemas
+// ============================================================================
+
+export const updateProfileExtendedSchema = z.object({
+  body: z.object({
+    display_name: z.string().min(1).max(100).optional(),
+    email: z.string().email('Invalid email address').optional(),
+    lightning_address: z.string()
+      .regex(
+        /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        'Invalid Lightning address format (e.g., user@getalby.com)'
+      )
+      .optional()
+      .or(z.literal('')), // Allow empty string to clear
+    theme_preference: z.enum(['light', 'dark', 'system']).optional(),
+    avatar_url: z.string().url('Invalid avatar URL').max(500).optional(),
+  }),
+});
+
+export const changePasswordSchema = z.object({
+  body: z.object({
+    current_password: z.string().min(1, 'Current password is required'),
+    new_password: z.string()
+      .min(8, 'Password must be at least 8 characters')
+      .max(100, 'Password must be at most 100 characters')
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+      ),
+    confirm_password: z.string(),
+  }).refine(data => data.new_password === data.confirm_password, {
+    message: 'Passwords do not match',
+    path: ['confirm_password'],
+  }),
+});
+
+export const updatePreferencesSchema = z.object({
+  body: z.object({
+    email_notifications: z.boolean().optional(),
+    push_notifications: z.boolean().optional(),
+    sms_notifications: z.boolean().optional(),
+    marketing_emails: z.boolean().optional(),
+    job_updates: z.boolean().optional(),
+    payment_alerts: z.boolean().optional(),
+  }),
+});
+
+export const uploadAvatarSchema = z.object({
+  body: z.object({
+    file_name: z.string().max(255),
+    file_size: z.number().int().positive().max(5 * 1024 * 1024), // 5MB max
+    mime_type: z.enum(['image/jpeg', 'image/png', 'image/gif', 'image/webp']),
+  }),
+});
+
+export const enable2FASchema = z.object({
+  body: z.object({
+    code: z.string()
+      .length(6, '2FA code must be 6 digits')
+      .regex(/^\d{6}$/, '2FA code must be numeric'),
+  }),
+});
+
+export const verify2FASchema = z.object({
+  body: z.object({
+    code: z.string()
+      .length(6, '2FA code must be 6 digits')
+      .regex(/^\d{6}$/, '2FA code must be numeric'),
+  }),
+});
+
 // Type exports for TypeScript
 export type RegisterInput = z.infer<typeof registerSchema>['body'];
 export type LoginInput = z.infer<typeof loginSchema>['body'];
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>['body'];
+export type UpdateProfileExtendedInput = z.infer<typeof updateProfileExtendedSchema>['body'];
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>['body'];
+export type UpdatePreferencesInput = z.infer<typeof updatePreferencesSchema>['body'];
+export type UploadAvatarInput = z.infer<typeof uploadAvatarSchema>['body'];
+export type Enable2FAInput = z.infer<typeof enable2FASchema>['body'];
+export type Verify2FAInput = z.infer<typeof verify2FASchema>['body'];
 export type CreateJobInput = z.infer<typeof createJobSchema>['body'];
 export type UpdateJobInput = z.infer<typeof updateJobSchema>['body'];
 export type CreateRunnerProfileInput = z.infer<typeof createRunnerProfileSchema>['body'];

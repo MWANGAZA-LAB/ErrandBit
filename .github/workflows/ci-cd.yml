@@ -1,5 +1,20 @@
 name: CI/CD Pipeline
 
+# Setup Instructions:
+# 1. Create GitHub Environments (optional for deployment protection):
+#    - Go to Settings -> Environments -> New environment
+#    - Create 'staging' and 'production' environments
+#    - Uncomment the environment blocks in deploy jobs below
+#
+# 2. Configure GitHub Secrets (Settings -> Secrets and variables -> Actions):
+#    - SNYK_TOKEN: Snyk API token for security scanning (optional)
+#    - VITE_API_URL: Frontend API URL (defaults to https://api.errandbit.com)
+#    - SLACK_WEBHOOK_URL: Slack webhook for deployment notifications (optional)
+#    - GITHUB_TOKEN: Automatically provided by GitHub Actions
+#
+# 3. For first-time setup, the workflow will run but skip optional steps
+#    that require missing secrets (Snyk scan, Slack notifications)
+
 on:
   push:
     branches: [main, develop]
@@ -114,6 +129,7 @@ jobs:
       - name: Run Snyk Security Scan
         uses: snyk/actions/node@master
         continue-on-error: true
+        if: ${{ secrets.SNYK_TOKEN != '' }}
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -264,7 +280,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            VITE_API_URL=${{ secrets.VITE_API_URL }}
+            VITE_API_URL=${{ secrets.VITE_API_URL || 'https://api.errandbit.com' }}
 
   # ============================================
   # DEPLOYMENT
@@ -275,9 +291,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [docker-build]
     if: github.ref == 'refs/heads/develop'
-    environment:
-      name: staging
-      url: https://staging.errandbit.com
+    # Note: Create 'staging' environment in GitHub repository settings
+    # Settings -> Environments -> New environment
+    # environment:
+    #   name: staging
+    #   url: https://staging.errandbit.com
     
     steps:
       - name: Checkout code
@@ -296,7 +314,7 @@ jobs:
 
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
-        if: always()
+        if: always() && secrets.SLACK_WEBHOOK_URL != ''
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
@@ -308,9 +326,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [docker-build]
     if: github.ref == 'refs/heads/main'
-    environment:
-      name: production
-      url: https://errandbit.com
+    # Note: Create 'production' environment in GitHub repository settings
+    # Settings -> Environments -> New environment
+    # environment:
+    #   name: production
+    #   url: https://errandbit.com
     
     steps:
       - name: Checkout code
@@ -328,7 +348,7 @@ jobs:
 
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
-        if: always()
+        if: always() && secrets.SLACK_WEBHOOK_URL != ''
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
