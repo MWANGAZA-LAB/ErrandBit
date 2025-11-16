@@ -78,7 +78,15 @@ export function useUpdateProfile() {
 
   return useMutation({
     mutationFn: async (data: ProfileData) => {
-      const response = await api.put('/profile', data);
+      // Convert camelCase to snake_case for API
+      const apiData: any = {};
+      if (data.displayName !== undefined) apiData.display_name = data.displayName;
+      if (data.email !== undefined) apiData.email = data.email;
+      if (data.lightningAddress !== undefined) apiData.lightning_address = data.lightningAddress;
+      if (data.themePreference !== undefined) apiData.theme_preference = data.themePreference;
+      if (data.avatarUrl !== undefined) apiData.avatar_url = data.avatarUrl;
+      
+      const response = await api.put('/profile', apiData);
       return response.data.user;
     },
     onSuccess: (updatedUser) => {
@@ -103,7 +111,12 @@ export function useUpdateProfile() {
 export function useChangePassword() {
   return useMutation({
     mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
-      const response = await api.post('/profile/change-password', data);
+      // Convert camelCase to snake_case for API
+      const response = await api.post('/profile/change-password', {
+        current_password: data.currentPassword,
+        new_password: data.newPassword,
+        confirm_password: data.newPassword, // Required by schema
+      });
       return response.data;
     },
     onSuccess: () => {
@@ -123,7 +136,16 @@ export function useUpdatePreferences() {
 
   return useMutation({
     mutationFn: async (data: Preferences) => {
-      const response = await api.put('/profile/preferences', data);
+      // Convert camelCase to snake_case for API
+      const apiData: any = {};
+      if (data.emailNotifications !== undefined) apiData.email_notifications = data.emailNotifications;
+      if (data.pushNotifications !== undefined) apiData.push_notifications = data.pushNotifications;
+      if (data.smsNotifications !== undefined) apiData.sms_notifications = data.smsNotifications;
+      if (data.marketingEmails !== undefined) apiData.marketing_emails = data.marketingEmails;
+      if (data.jobUpdates !== undefined) apiData.job_updates = data.jobUpdates;
+      if (data.paymentAlerts !== undefined) apiData.payment_alerts = data.paymentAlerts;
+      
+      const response = await api.put('/profile/preferences', apiData);
       return response.data.preferences;
     },
     onMutate: async (newPreferences) => {
@@ -156,7 +178,13 @@ export function useUploadAvatar() {
 
   return useMutation({
     mutationFn: async (data: { fileName: string; fileSize: number; mimeType: string; storagePath: string }) => {
-      const response = await api.post('/profile/avatar', data);
+      // Convert camelCase to snake_case for API
+      const response = await api.post('/profile/avatar', {
+        file_name: data.fileName,
+        file_size: data.fileSize,
+        mime_type: data.mimeType,
+        storage_path: data.storagePath,
+      });
       return response.data.avatar;
     },
     onSuccess: () => {

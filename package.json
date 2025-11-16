@@ -4,6 +4,7 @@
   "private": true,
   "description": "Trust-minimized local services marketplace powered by Bitcoin Lightning",
   "scripts": {
+    "dev": "npm run dev:frontend",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",

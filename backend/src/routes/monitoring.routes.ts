@@ -6,7 +6,6 @@
 import { Router, Response } from 'express';
 import { authenticate } from '../middleware/auth.js';
 import { paymentMonitoringService } from '../services/payment-monitoring.service.js';
-import { lightningService } from '../services/lightning.service.js';
 import type { AuthenticatedRequest } from '../types/index.js';
 import logger from '../utils/logger.js';
 
@@ -17,7 +16,7 @@ const router = Router();
  * Get payment metrics and health status
  * Requires authentication (admin only in production)
  */
-router.get('/payments', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.get('/payments', authenticate, async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const metrics = await paymentMonitoringService.getPaymentMetrics();
     const stuckPayments = await paymentMonitoringService.getStuckPayments();
@@ -43,7 +42,7 @@ router.get('/payments', authenticate, async (req: AuthenticatedRequest, res: Res
  * GET /api/v1/monitoring/lightning/health
  * Check Lightning node connection health
  */
-router.get('/lightning/health', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.get('/lightning/health', authenticate, async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const health = await paymentMonitoringService.checkLightningHealth();
 
@@ -67,7 +66,7 @@ router.get('/lightning/health', authenticate, async (req: AuthenticatedRequest, 
  * Manually trigger cleanup of expired invoices
  * Admin only
  */
-router.post('/cleanup/expired-invoices', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/cleanup/expired-invoices', authenticate, async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     // TODO: Add admin role check
     // if (req.userRole !== 'admin') {
@@ -97,7 +96,7 @@ router.post('/cleanup/expired-invoices', authenticate, async (req: Authenticated
  * GET /api/v1/monitoring/dashboard
  * Get comprehensive dashboard data
  */
-router.get('/dashboard', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.get('/dashboard', authenticate, async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const [metrics, lightningHealth, stuckPayments] = await Promise.all([
       paymentMonitoringService.getPaymentMetrics(),
@@ -138,7 +137,7 @@ router.get('/dashboard', authenticate, async (req: AuthenticatedRequest, res: Re
  * POST /api/v1/monitoring/test-alert
  * Test alert system (development only)
  */
-router.post('/test-alert', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/test-alert', authenticate, async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
   if (process.env.NODE_ENV === 'production') {
     res.status(403).json({
       success: false,

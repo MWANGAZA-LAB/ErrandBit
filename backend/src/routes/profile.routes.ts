@@ -37,7 +37,7 @@ const profileService = new ProfileService(pool, passwordService);
 router.put(
   '/',
   authenticate,
-  validateBody(updateProfileExtendedSchema),
+  validateBody(updateProfileExtendedSchema.shape.body),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const userId = typeof req.userId === 'string' ? parseInt(req.userId, 10) : req.userId!;
@@ -88,7 +88,7 @@ router.put(
 router.post(
   '/change-password',
   authenticate,
-  validateBody(changePasswordSchema),
+  validateBody(changePasswordSchema.shape.body),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const userId = typeof req.userId === 'string' ? parseInt(req.userId, 10) : req.userId!;
@@ -157,7 +157,7 @@ router.get(
 router.put(
   '/preferences',
   authenticate,
-  validateBody(updatePreferencesSchema),
+  validateBody(updatePreferencesSchema.shape.body),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const userId = typeof req.userId === 'string' ? parseInt(req.userId, 10) : req.userId!;
@@ -188,7 +188,7 @@ router.put(
 router.post(
   '/avatar',
   authenticate,
-  validateBody(uploadAvatarSchema),
+  validateBody(uploadAvatarSchema.shape.body),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const userId = typeof req.userId === 'string' ? parseInt(req.userId, 10) : req.userId!;
