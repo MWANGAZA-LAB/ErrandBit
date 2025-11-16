@@ -6,6 +6,7 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { authenticate } from '../middleware/auth.js';
+import { validateWebhookSignature } from '../middleware/webhook-validation.js';
 import { lightningService } from '../services/lightning.service.js';
 import { jobService } from '../services/job.service.js';
 import type { AuthenticatedRequest } from '../types/index.js';
@@ -213,13 +214,15 @@ router.get('/job/:jobId', authenticate, async (req: AuthenticatedRequest, res: R
 
 /**
  * POST /api/v1/payments/webhook
- * LNBits webhook handler (no auth required)
+ * LNBits webhook handler with signature validation
+ * No authentication required, but webhook signature MUST be valid
  */
-router.post('/webhook', async (req: Request, res: Response): Promise<void> => {
+router.post('/webhook', validateWebhookSignature, async (req: Request, res: Response): Promise<void> => {
   try {
     const { payment_hash } = req.body;
 
     if (!payment_hash) {
+      logger.warn('Webhook missing payment_hash', { body: req.body });
       res.status(400).json({ 
         success: false,
         error: 'Payment hash required' 
@@ -227,8 +230,12 @@ router.post('/webhook', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    logger.info('Processing webhook for payment', { payment_hash });
+
     // Handle webhook
     await lightningService.handleWebhook(payment_hash);
+
+    logger.info('✅ Webhook processed successfully', { payment_hash });
 
     res.json({
       success: true,
@@ -236,7 +243,7 @@ router.post('/webhook', async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     const err = error as Error;
-    console.error('Webhook error:', err);
+    logger.error('Webhook processing error:', { error: err.message, payment_hash: req.body.payment_hash });
     res.status(500).json({ 
       success: false,
       error: 'Webhook processing failed',
