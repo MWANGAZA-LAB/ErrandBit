@@ -1,13 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getHealth } from '../api';
 
 export default function Home() {
-  const [health, setHealth] = React.useState<any>(null);
-
-  React.useEffect(() => {
-    getHealth().then(setHealth).catch(console.error);
-  }, []);
 
   return (
     <div className="space-y-8">
@@ -72,15 +66,6 @@ export default function Home() {
           </p>
         </div>
       </div>
-
-      {health && (
-        <div className="mt-8 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">API Status:</p>
-          <pre className="text-xs bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 rounded border border-gray-200 dark:border-gray-700 overflow-auto">
-            {JSON.stringify(health, null, 2)}
-          </pre>
-        </div>
-      )}
     </div>
   );
 }
