@@ -129,11 +129,11 @@ jobs:
       - name: Run Snyk Security Scan
         uses: snyk/actions/node@master
         continue-on-error: true
-        if: ${{ secrets.SNYK_TOKEN != '' }}
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --severity-threshold=high
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   # ============================================
   # FRONTEND JOBS
@@ -314,7 +314,8 @@ jobs:
 
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
-        if: always() && secrets.SLACK_WEBHOOK_URL != ''
+        if: always()
+        continue-on-error: true
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
@@ -348,7 +349,8 @@ jobs:
 
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
-        if: always() && secrets.SLACK_WEBHOOK_URL != ''
+        if: always()
+        continue-on-error: true
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
