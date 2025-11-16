@@ -88,11 +88,11 @@ export default function CreateJob() {
         </div>
       </div>
 
-      <div className="bg-white shadow sm:rounded-lg">
+      <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg border border-gray-200 dark:border-gray-700 transition-colors">
         <form onSubmit={handleSubmit} className="space-y-6 p-6">
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Job Title
             </label>
             <input
@@ -103,7 +103,7 @@ export default function CreateJob() {
               value={formData.title}
               onChange={handleChange}
               placeholder="e.g., Deliver package to downtown"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
             />
           </div>
 
@@ -111,7 +111,7 @@ export default function CreateJob() {
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Description
             </label>
             <textarea
@@ -122,12 +122,12 @@ export default function CreateJob() {
               value={formData.description}
               onChange={handleChange}
               placeholder="Provide details about the job..."
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
             />
           </div>
 
           {/* Job Location */}
-          <div className="border-t border-gray-200 pt-6">
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
             <LocationPicker
               onLocationSelect={(lat, lng, address) => {
                 setFormData(prev => ({
@@ -147,7 +147,7 @@ export default function CreateJob() {
           </div>
 
           {/* Price with Multi-Currency Support */}
-          <div className="border-t border-gray-200 pt-6">
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
             <CurrencyInput
               value={formData.priceCents}
               onChange={handlePriceChange}
