@@ -7,10 +7,18 @@ import App from './App'
 import './index.css'
 import { reportWebVitals } from './utils/webVitals'
 import { initErrorTracking } from './utils/errorTracking'
-import { initDarkMode } from './utils/darkMode'
+import { initDarkMode, watchSystemTheme, detectReducedMotion, listenForThemeChanges } from './utils/darkMode'
 
 // Initialize dark mode IMMEDIATELY before React renders
 initDarkMode();
+// Watch for system theme changes
+watchSystemTheme();
+// Detect reduced motion preference for accessibility
+detectReducedMotion();
+// Listen for theme changes from other tabs
+listenForThemeChanges((theme) => {
+  console.log('Theme changed from another tab:', theme);
+});
 
 // Configure React Query client with optimized defaults
 const queryClient = new QueryClient({
