@@ -213,7 +213,7 @@ export const updateProfileExtendedSchema = z.object({
       .optional()
       .or(z.literal('')), // Allow empty string to clear
     theme_preference: z.enum(['light', 'dark', 'system']).optional(),
-    avatar_url: z.string().url('Invalid avatar URL').max(500).optional(),
+    avatar_url: z.string().url('Invalid avatar URL').max(500).optional().or(z.literal('')), // Allow empty string to clear
   }),
 });
 
