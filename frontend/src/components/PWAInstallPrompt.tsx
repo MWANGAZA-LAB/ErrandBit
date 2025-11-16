@@ -69,7 +69,7 @@ export function PWAInstallPrompt() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t-2 border-indigo-500 shadow-lg md:bottom-4 md:left-4 md:right-auto md:max-w-sm md:rounded-lg"
+      className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white dark:bg-gray-800 border-t-2 border-indigo-500 shadow-lg dark:shadow-gray-900/50 md:bottom-4 md:left-4 md:right-auto md:max-w-sm md:rounded-lg transition-colors"
       role="dialog"
       aria-labelledby="install-prompt-title"
       aria-describedby="install-prompt-description"
@@ -82,21 +82,21 @@ export function PWAInstallPrompt() {
             </svg>
           </div>
           <div>
-            <h3 id="install-prompt-title" className="text-lg font-semibold text-gray-900">
+            <h3 id="install-prompt-title" className="text-lg font-semibold text-gray-900 dark:text-white">
               Install ErrandBit
             </h3>
           </div>
         </div>
         <button
           onClick={handleDismiss}
-          className="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
           aria-label="Dismiss install prompt"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <p id="install-prompt-description" className="text-sm text-gray-600 mb-4">
+      <p id="install-prompt-description" className="text-sm text-gray-600 dark:text-gray-400 mb-4">
         Install our app for a better experience with offline access and faster loading.
       </p>
 

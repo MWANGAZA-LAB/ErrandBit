@@ -92,28 +92,28 @@ export default function FindRunnersPage() {
       {/* Header */}
       <div className="md:flex md:items-center md:justify-between mb-8">
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
             Find Runners
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Discover available runners in your area
           </p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg p-6 mb-6 border border-gray-200 dark:border-gray-700">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {/* Radius Filter */}
           <div>
-            <label htmlFor="radius" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="radius" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Radius (km)
             </label>
             <select
               id="radius"
               value={radius}
               onChange={(e) => setRadius(parseInt(e.target.value))}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
               <option value="5">5 km</option>
               <option value="10">10 km</option>
@@ -125,11 +125,11 @@ export default function FindRunnersPage() {
 
           {/* Location Display */}
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Your Location
             </label>
             <div className="mt-1 flex items-center justify-between">
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 {latitude.toFixed(4)}, {longitude.toFixed(4)}
               </span>
               <button
@@ -167,9 +167,9 @@ export default function FindRunnersPage() {
 
       {/* Empty State */}
       {!loading && runners.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-lg shadow">
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400"
+            className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -181,8 +181,8 @@ export default function FindRunnersPage() {
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
             />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No runners found</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No runners found</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Try expanding your search radius or check back later.
           </p>
         </div>
@@ -191,29 +191,29 @@ export default function FindRunnersPage() {
       {/* Runners Grid */}
       {!loading && runners.length > 0 && (
         <div>
-          <div className="mb-4 text-sm text-gray-500">
+          <div className="mb-4 text-sm text-gray-500 dark:text-gray-400">
             Found {runners.length} {runners.length === 1 ? 'runner' : 'runners'}
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {runners.map(runner => (
               <div
                 key={runner.id}
-                className="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg overflow-hidden hover:shadow-xl dark:hover:shadow-gray-900/70 transition-all duration-200 cursor-pointer border border-gray-200 dark:border-gray-700"
                 onClick={() => navigate(`/runners/${runner.id}`)}
               >
                 <div className="p-6">
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                        <svg className="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Runner</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Runner</h3>
                         {runner.available && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                             Available
                           </span>
                         )}
@@ -222,7 +222,7 @@ export default function FindRunnersPage() {
                   </div>
 
                   {/* Bio */}
-                  <p className="text-sm text-gray-600 line-clamp-3 mb-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-4">
                     {runner.bio || 'No bio available'}
                   </p>
 
@@ -233,13 +233,13 @@ export default function FindRunnersPage() {
                         {runner.tags.slice(0, 3).map((tag: string) => (
                           <span
                             key={tag}
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 capitalize"
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400 capitalize"
                           >
                             {tag}
                           </span>
                         ))}
                         {runner.tags.length > 3 && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
                             +{runner.tags.length - 3} more
                           </span>
                         )}
@@ -248,14 +248,14 @@ export default function FindRunnersPage() {
                   )}
 
                   {/* Stats */}
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div>
-                      <div className="text-xs text-gray-500">Total Jobs</div>
-                      <div className="text-lg font-semibold text-gray-900">{runner.totalJobs || 0}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Total Jobs</div>
+                      <div className="text-lg font-semibold text-gray-900 dark:text-white">{runner.totalJobs || 0}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500">Rating</div>
-                      <div className="text-lg font-semibold text-gray-900">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
+                      <div className="text-lg font-semibold text-gray-900 dark:text-white">
                         {runner.avgRating ? (
                           <span className="flex items-center">
                             {Number(runner.avgRating).toFixed(1)}
@@ -272,9 +272,9 @@ export default function FindRunnersPage() {
 
                   {/* Hourly Rate */}
                   {runner.hourlyRate && runner.hourlyRate > 0 && (
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <div className="text-sm text-gray-500">Hourly Rate</div>
-                      <div className="text-xl font-bold text-indigo-600">
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Hourly Rate</div>
+                      <div className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
                         ${(runner.hourlyRate / 100).toFixed(2)}/hr
                       </div>
                     </div>

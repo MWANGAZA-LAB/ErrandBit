@@ -82,7 +82,7 @@ function JobCardComponent({ job, onClick, enablePrefetch = true }: JobCardProps)
       to={`/jobs/${job.id}`}
       onClick={onClick}
       onMouseEnter={handleMouseEnter}
-      className="block bg-white shadow rounded-lg hover:shadow-md transition-shadow duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      className="block bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg hover:shadow-xl dark:hover:shadow-gray-900/70 transition-shadow duration-200 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
       aria-label={ariaLabel}
     >
       <article className="p-6">
@@ -111,12 +111,12 @@ function JobCardComponent({ job, onClick, enablePrefetch = true }: JobCardProps)
         </div>
 
         {/* Description */}
-        <p className="mt-3 text-sm text-gray-600 line-clamp-2">
+        <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
           {job.description}
         </p>
 
         {/* Location */}
-        <div className="mt-4 flex items-center text-sm text-gray-500">
+        <div className="mt-4 flex items-center text-sm text-gray-500 dark:text-gray-400">
           <svg 
             className="h-5 w-5 mr-1" 
             fill="none" 
@@ -141,15 +141,15 @@ function JobCardComponent({ job, onClick, enablePrefetch = true }: JobCardProps)
         </div>
 
         {/* Footer */}
-        <div className="mt-4 flex items-center justify-between pt-4 border-t border-gray-200">
+        <div className="mt-4 flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
           <time 
-            className="text-sm text-gray-500"
+            className="text-sm text-gray-500 dark:text-gray-400"
             dateTime={job.createdAt}
           >
             {formattedDate}
           </time>
           <div 
-            className="text-lg font-bold text-indigo-600"
+            className="text-lg font-bold text-indigo-600 dark:text-indigo-400"
             aria-label={`Price: ${formattedPrice}`}
           >
             {formattedPrice}

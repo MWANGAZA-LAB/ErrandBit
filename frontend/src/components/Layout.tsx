@@ -201,12 +201,12 @@ export default function Layout() {
         <Outlet />
       </main>
       
-      <footer className="bg-white border-t border-gray-200 mt-auto" role="contentinfo">
+      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto" role="contentinfo">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
             ErrandBit - Trust-minimized local services marketplace powered by Bitcoin Lightning
           </p>
-          <p className="text-center text-xs text-gray-400 mt-2">
+          <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-2">
             © {new Date().getFullYear()} ErrandBit. All rights reserved.
           </p>
         </div>

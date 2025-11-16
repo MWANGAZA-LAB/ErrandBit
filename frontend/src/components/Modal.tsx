@@ -100,13 +100,13 @@ export function Modal({
       <div className="flex min-h-full items-center justify-center p-4">
         <div
           ref={modalRef as React.RefObject<HTMLDivElement>}
-          className={`relative w-full ${sizeClasses[size]} bg-white rounded-lg shadow-xl transform transition-all`}
+          className={`relative w-full ${sizeClasses[size]} bg-white dark:bg-gray-800 rounded-lg shadow-xl dark:shadow-gray-900/50 transform transition-all`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <h2
               id={titleId.current}
-              className="text-xl font-semibold text-gray-900"
+              className="text-xl font-semibold text-gray-900 dark:text-white"
             >
               {title}
             </h2>
@@ -114,7 +114,7 @@ export function Modal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                className="rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 aria-label="Close dialog"
               >
                 <X className="h-6 w-6" aria-hidden="true" />
@@ -143,7 +143,7 @@ interface ModalFooterProps {
 
 export function ModalFooter({ children, className = '' }: ModalFooterProps) {
   return (
-    <div className={`flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 ${className}`}>
+    <div className={`flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700 ${className}`}>
       {children}
     </div>
   )
@@ -181,13 +181,13 @@ export function ConfirmModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
-      <p className="text-sm text-gray-600">{message}</p>
+      <p className="text-sm text-gray-600 dark:text-gray-400">{message}</p>
       
       <ModalFooter className="mt-6">
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
         >
           {cancelText}
         </button>

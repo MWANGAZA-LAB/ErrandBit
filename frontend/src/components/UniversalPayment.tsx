@@ -145,9 +145,9 @@ export default function UniversalPayment({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-2">Pay with Lightning</h2>
-        <p className="text-gray-600 mb-6">Amount: <span className="font-semibold text-orange-600">{formatSats(amount)} sats</span></p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6 shadow-xl dark:shadow-gray-900/50 max-h-[90vh] overflow-y-auto transition-colors">
+        <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Pay with Lightning</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">Amount: <span className="font-semibold text-orange-600 dark:text-orange-400">{formatSats(amount)} sats</span></p>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -234,7 +234,7 @@ export default function UniversalPayment({
         {/* QR Code Method */}
         {method === 'qr' && (
           <div className="space-y-4">
-            <div className="bg-white border-2 border-gray-200 rounded-lg p-4 flex justify-center">
+            <div className="bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg p-4 flex justify-center transition-colors">
               {qrDataUrl ? (
                 <img src={qrDataUrl} alt="Payment QR Code" className="w-64 h-64" />
               ) : (

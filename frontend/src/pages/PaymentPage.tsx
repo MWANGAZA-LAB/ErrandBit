@@ -174,16 +174,16 @@ export default function PaymentPage() {
           <p className="text-green-700 mb-6">
             Your payment has been successfully verified on the Lightning Network.
           </p>
-          <div className="bg-white rounded-md p-4 mb-6">
-            <p className="text-sm text-gray-600 mb-2">Transaction Details:</p>
-            <p className="text-xs text-gray-500 font-mono break-all">
+          <div className="bg-white dark:bg-gray-700 rounded-md p-4 mb-6 transition-colors">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Transaction Details:</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-mono break-all">
               Payment Hash: {invoice?.paymentHash?.substring(0, 32)}...
             </p>
-            <p className="text-sm font-medium text-green-600 mt-2">
+            <p className="text-sm font-medium text-green-600 dark:text-green-400 mt-2">
               Amount: {invoice?.amountSats?.toLocaleString()} sats
             </p>
           </div>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Redirecting you back to the job in 3 seconds...
           </p>
           <button
@@ -226,31 +226,31 @@ export default function PaymentPage() {
           ← Back to job
         </button>
         
-        <h1 className="text-3xl font-bold text-gray-900">Pay with Lightning</h1>
-        <p className="mt-2 text-sm text-gray-600">{job.title}</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Pay with Lightning</h1>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{job.title}</p>
       </div>
 
       {/* Job Summary */}
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Payment Summary</h2>
+      <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg p-6 mb-6 transition-colors">
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Payment Summary</h2>
         
         <div className="space-y-3">
           <div className="flex justify-between">
-            <span className="text-gray-600">Job:</span>
-            <span className="font-medium text-gray-900">{job.title}</span>
+            <span className="text-gray-600 dark:text-gray-400">Job:</span>
+            <span className="font-medium text-gray-900 dark:text-white">{job.title}</span>
           </div>
           
           <div className="flex justify-between">
-            <span className="text-gray-600">Amount:</span>
-            <span className="font-medium text-gray-900">
+            <span className="text-gray-600 dark:text-gray-400">Amount:</span>
+            <span className="font-medium text-gray-900 dark:text-white">
               {formatCentsAsUsd(job.priceCents)}
             </span>
           </div>
           
           {invoice && (
             <div className="flex justify-between">
-              <span className="text-gray-600">Amount (sats):</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-gray-600 dark:text-gray-400">Amount (sats):</span>
+              <span className="font-medium text-gray-900 dark:text-white">
                 {invoice.amountSats.toLocaleString()} sats
               </span>
             </div>
@@ -267,8 +267,8 @@ export default function PaymentPage() {
 
       {/* Generate Invoice Button */}
       {!invoice && (
-        <div className="bg-white shadow rounded-lg p-6">
-          <p className="text-gray-600 mb-6">
+        <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg p-6 transition-colors">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             Click the button below to generate a Lightning invoice and choose your payment method.
           </p>
           
@@ -298,9 +298,9 @@ export default function PaymentPage() {
       )}
 
       {/* Instructions */}
-      <div className="mt-6 bg-gray-50 rounded-lg p-6">
-        <h3 className="text-sm font-medium text-gray-900 mb-3">Multiple Payment Methods Supported:</h3>
-        <ul className="list-disc list-inside space-y-2 text-sm text-gray-600">
+      <div className="mt-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-6 transition-colors">
+        <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Multiple Payment Methods Supported:</h3>
+        <ul className="list-disc list-inside space-y-2 text-sm text-gray-600 dark:text-gray-300">
           <li><strong>WebLN:</strong> One-click payment with browser wallets (Alby, Zeus, Mutiny)</li>
           <li><strong>QR Code:</strong> Scan with mobile wallets (Phoenix, BlueWallet, Breez)</li>
           <li><strong>Manual:</strong> Paste invoice in your wallet, then submit preimage proof</li>

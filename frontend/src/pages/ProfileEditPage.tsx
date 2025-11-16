@@ -240,16 +240,16 @@ export default function ProfileEditPage() {
           </svg>
           Back to Profile
         </button>
-        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl">
+        <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl">
           Edit Profile
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Manage your account settings, Lightning address, and preferences
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
         <nav className="-mb-px flex space-x-8">
           <button
             onClick={() => setActiveTab('profile')}
@@ -288,15 +288,15 @@ export default function ProfileEditPage() {
       {activeTab === 'profile' && (
         <form onSubmit={handleProfileUpdate} className="space-y-6">
           {/* Basic Information */}
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+          <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg transition-colors">
+            <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                 Basic Information
               </h3>
             </div>
             <div className="px-6 py-5 space-y-6">
               <div>
-                <label htmlFor="displayName" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Display Name
                 </label>
                 <input
@@ -304,13 +304,13 @@ export default function ProfileEditPage() {
                   id="displayName"
                   value={profile.displayName}
                   onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                   placeholder="Your display name"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Email Address
                 </label>
                 <input
@@ -318,7 +318,7 @@ export default function ProfileEditPage() {
                   id="email"
                   value={profile.email}
                   onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                   placeholder="your.email@example.com"
                 />
               </div>
@@ -326,31 +326,31 @@ export default function ProfileEditPage() {
           </div>
 
           {/* Lightning Address */}
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+          <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg transition-colors">
+            <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                 Lightning Network
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Add your Lightning address to receive instant Bitcoin payments for completed jobs
               </p>
             </div>
             <div className="px-6 py-5">
               <div>
-                <label htmlFor="lightningAddress" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="lightningAddress" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Lightning Address
-                  <span className="ml-2 text-xs text-gray-500">(format: user@domain.com)</span>
+                  <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">(format: user@domain.com)</span>
                 </label>
                 <input
                   type="text"
                   id="lightningAddress"
                   value={profile.lightningAddress}
                   onChange={(e) => setProfile({ ...profile, lightningAddress: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-mono"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-mono transition-colors"
                   placeholder="yourname@getalby.com"
                 />
-                <p className="mt-2 text-sm text-gray-500">
-                  ⚡ Get a Lightning address from providers like{' '}
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  Get a Lightning address from providers like{' '}
                   <a href="https://getalby.com" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-500">
                     Alby
                   </a>
@@ -368,14 +368,14 @@ export default function ProfileEditPage() {
           </div>
 
           {/* Theme Preferences */}
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+          <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg transition-colors">
+            <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                 Appearance
               </h3>
             </div>
             <div className="px-6 py-5">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                 Theme Preference
               </label>
               <div className="space-y-3">
@@ -392,7 +392,7 @@ export default function ProfileEditPage() {
                     <svg className="w-5 h-5 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm text-gray-900">Light</span>
+                    <span className="text-sm text-gray-900 dark:text-white">Light</span>
                   </label>
                 </div>
                 <div className="flex items-center">
@@ -408,7 +408,7 @@ export default function ProfileEditPage() {
                     <svg className="w-5 h-5 mr-2 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                     </svg>
-                    <span className="text-sm text-gray-900">Dark</span>
+                    <span className="text-sm text-gray-900 dark:text-white">Dark</span>
                   </label>
                 </div>
                 <div className="flex items-center">
@@ -421,10 +421,10 @@ export default function ProfileEditPage() {
                     className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
                   />
                   <label htmlFor="theme-system" className="ml-3 flex items-center">
-                    <svg className="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm text-gray-900">System</span>
+                    <span className="text-sm text-gray-900 dark:text-white">System</span>
                   </label>
                 </div>
               </div>
@@ -457,12 +457,12 @@ export default function ProfileEditPage() {
       {/* Preferences Tab */}
       {activeTab === 'preferences' && (
         <form onSubmit={handlePreferencesUpdate} className="space-y-6">
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+          <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg transition-colors">
+            <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                 Notification Preferences
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Choose how you want to be notified about updates
               </p>
             </div>
@@ -478,10 +478,10 @@ export default function ProfileEditPage() {
                   />
                 </div>
                 <div className="ml-3">
-                  <label htmlFor="emailNotifications" className="font-medium text-gray-700">
+                  <label htmlFor="emailNotifications" className="font-medium text-gray-700 dark:text-gray-300">
                     Email Notifications
                   </label>
-                  <p className="text-sm text-gray-500">Receive email updates about your jobs and account</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Receive email updates about your jobs and account</p>
                 </div>
               </div>
 
@@ -496,10 +496,10 @@ export default function ProfileEditPage() {
                   />
                 </div>
                 <div className="ml-3">
-                  <label htmlFor="pushNotifications" className="font-medium text-gray-700">
+                  <label htmlFor="pushNotifications" className="font-medium text-gray-700 dark:text-gray-300">
                     Push Notifications
                   </label>
-                  <p className="text-sm text-gray-500">Receive push notifications in your browser</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Receive push notifications in your browser</p>
                 </div>
               </div>
 
@@ -514,15 +514,15 @@ export default function ProfileEditPage() {
                   />
                 </div>
                 <div className="ml-3">
-                  <label htmlFor="smsNotifications" className="font-medium text-gray-700">
+                  <label htmlFor="smsNotifications" className="font-medium text-gray-700 dark:text-gray-300">
                     SMS Notifications
                   </label>
-                  <p className="text-sm text-gray-500">Receive text messages for important updates</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Receive text messages for important updates</p>
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4 mt-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-4">Specific Updates</h4>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-4">Specific Updates</h4>
                 
                 <div className="space-y-4">
                   <div className="flex items-start">
@@ -536,10 +536,10 @@ export default function ProfileEditPage() {
                       />
                     </div>
                     <div className="ml-3">
-                      <label htmlFor="jobUpdates" className="font-medium text-gray-700">
+                      <label htmlFor="jobUpdates" className="font-medium text-gray-700 dark:text-gray-300">
                         Job Updates
                       </label>
-                      <p className="text-sm text-gray-500">Notifications about job status changes</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Notifications about job status changes</p>
                     </div>
                   </div>
 
@@ -554,10 +554,10 @@ export default function ProfileEditPage() {
                       />
                     </div>
                     <div className="ml-3">
-                      <label htmlFor="paymentAlerts" className="font-medium text-gray-700">
+                      <label htmlFor="paymentAlerts" className="font-medium text-gray-700 dark:text-gray-300">
                         Payment Alerts
                       </label>
-                      <p className="text-sm text-gray-500">Notifications about payments and payouts</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Notifications about payments and payouts</p>
                     </div>
                   </div>
 
@@ -572,10 +572,10 @@ export default function ProfileEditPage() {
                       />
                     </div>
                     <div className="ml-3">
-                      <label htmlFor="marketingEmails" className="font-medium text-gray-700">
+                      <label htmlFor="marketingEmails" className="font-medium text-gray-700 dark:text-gray-300">
                         Marketing Emails
                       </label>
-                      <p className="text-sm text-gray-500">Receive news, tips, and special offers</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive news, tips, and special offers</p>
                     </div>
                   </div>
                 </div>
@@ -600,18 +600,18 @@ export default function ProfileEditPage() {
       {activeTab === 'security' && (
         <div className="space-y-6">
           {/* Change Password */}
-          <form onSubmit={handlePasswordChange} className="bg-white shadow rounded-lg">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+          <form onSubmit={handlePasswordChange} className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg transition-colors">
+            <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                 Change Password
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Password must be at least 8 characters with uppercase, lowercase, and number
               </p>
             </div>
             <div className="px-6 py-5 space-y-4">
               <div>
-                <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Current Password
                 </label>
                 <input
@@ -619,13 +619,13 @@ export default function ProfileEditPage() {
                   id="currentPassword"
                   value={passwordData.currentPassword}
                   onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                   placeholder="Enter current password"
                 />
               </div>
 
               <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   New Password
                 </label>
                 <input
@@ -633,13 +633,13 @@ export default function ProfileEditPage() {
                   id="newPassword"
                   value={passwordData.newPassword}
                   onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                   placeholder="Enter new password"
                 />
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Confirm New Password
                 </label>
                 <input
@@ -647,7 +647,7 @@ export default function ProfileEditPage() {
                   id="confirmPassword"
                   value={passwordData.confirmPassword}
                   onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                   placeholder="Confirm new password"
                 />
               </div>
@@ -665,20 +665,20 @@ export default function ProfileEditPage() {
           </form>
 
           {/* Security Log */}
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
+          <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg transition-colors">
+            <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <div>
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                   Security Activity Log
                 </h3>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   Recent security-related activity on your account
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleViewSecurityLog}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
               >
                 View Log
               </button>
@@ -687,22 +687,22 @@ export default function ProfileEditPage() {
             {showSecurityLog && (
               <div className="px-6 py-5">
                 {!securityLogData || securityLogData.length === 0 ? (
-                  <p className="text-sm text-gray-500">No security events recorded</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No security events recorded</p>
                 ) : (
                   <div className="space-y-3">
                     {securityLogData.map((entry) => (
-                      <div key={entry.id} className="flex items-start border-b border-gray-200 pb-3 last:border-0">
+                      <div key={entry.id} className="flex items-start border-b border-gray-200 dark:border-gray-700 pb-3 last:border-0">
                         <div className="flex-shrink-0">
                           <div className={`w-2 h-2 mt-2 rounded-full ${entry.success ? 'bg-green-400' : 'bg-red-400'}`}></div>
                         </div>
                         <div className="ml-3 flex-1">
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
                             {entry.action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                           </p>
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             {new Date(entry.createdAt).toLocaleString()}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             IP: {entry.ipAddress}
                           </p>
                         </div>

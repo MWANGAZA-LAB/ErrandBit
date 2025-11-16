@@ -33,20 +33,20 @@ export function PWAUpdateNotification() {
 
   return (
     <div
-      className="fixed top-4 right-4 z-50 max-w-sm bg-white rounded-lg shadow-lg border border-gray-200 p-4"
+      className="fixed top-4 right-4 z-50 max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 border border-gray-200 dark:border-gray-700 p-4 transition-colors"
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
     >
       <div className="flex items-start">
         <div className="flex-shrink-0">
-          <RefreshCw className="h-6 w-6 text-indigo-600" aria-hidden="true" />
+          <RefreshCw className="h-6 w-6 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
         </div>
         <div className="ml-3 flex-1">
-          <h3 className="text-sm font-medium text-gray-900">
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white">
             Update Available
           </h3>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             A new version of ErrandBit is available. Refresh to get the latest features and improvements.
           </p>
           <div className="mt-4 flex space-x-3">
@@ -58,7 +58,7 @@ export function PWAUpdateNotification() {
             </button>
             <button
               onClick={handleDismiss}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
             >
               Later
             </button>
