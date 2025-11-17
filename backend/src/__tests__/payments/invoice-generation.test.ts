@@ -9,9 +9,16 @@ import { lightningService } from '../../services/lightning.service';
 import { getPool } from '../../db';
 
 describe('Invoice Generation', () => {
+  // Skip these tests if LNBits is not configured (CI environment)
+  const skipIfNoLNBits = !process.env.LNBITS_API_KEY || !process.env.LNBITS_BASE_URL;
+  
   beforeAll(async () => {
     // Setup test database connection
     process.env.NODE_ENV = 'test';
+    
+    if (skipIfNoLNBits) {
+      console.log('⚠️  Skipping invoice generation tests - LNBits not configured');
+    }
   });
 
   afterAll(async () => {
@@ -23,7 +30,7 @@ describe('Invoice Generation', () => {
   });
 
   describe('createInvoice', () => {
-    it('should create invoice with valid parameters', async () => {
+    (skipIfNoLNBits ? it.skip : it)('should create invoice with valid parameters', async () => {
       const input = {
         amount_sats: 10000,
         amount_usd: 5.00,
@@ -69,7 +76,7 @@ describe('Invoice Generation', () => {
       ).rejects.toThrow();
     });
 
-    it('should generate unique payment hashes', async () => {
+    (skipIfNoLNBits ? it.skip : it)('should generate unique payment hashes', async () => {
       const input1 = {
         amount_sats: 5000,
         amount_usd: 2.50,
@@ -90,7 +97,7 @@ describe('Invoice Generation', () => {
       expect(invoice1.payment_request).not.toBe(invoice2.payment_request);
     });
 
-    it('should store invoice in database', async () => {
+    (skipIfNoLNBits ? it.skip : it)('should store invoice in database', async () => {
       const pool = getPool();
       if (!pool) {
         throw new Error('Database not configured');
@@ -118,7 +125,7 @@ describe('Invoice Generation', () => {
       expect(parseInt(result.rows[0].amount_sats)).toBe(8000);
     });
 
-    it('should handle concurrent invoice generation', async () => {
+    (skipIfNoLNBits ? it.skip : it)('should handle concurrent invoice generation', async () => {
       const promises = Array.from({ length: 10 }, (_, i) => {
         return lightningService.createInvoice({
           amount_sats: 1000 * (i + 1),

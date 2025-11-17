@@ -84,6 +84,21 @@ export function validateWebhookSignature(
       .update(payload)
       .digest('hex');
 
+    // Check if signatures have the same length before timing-safe comparison
+    if (signature.length !== expectedSignature.length) {
+      logger.warn('Webhook signature validation failed: Invalid signature length', {
+        expectedLength: expectedSignature.length,
+        receivedLength: signature.length,
+        ip: req.ip
+      });
+      
+      res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Invalid webhook signature'
+      });
+      return;
+    }
+
     // Use timing-safe comparison to prevent timing attacks
     const isValid = crypto.timingSafeEqual(
       Buffer.from(signature),

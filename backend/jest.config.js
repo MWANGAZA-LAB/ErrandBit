@@ -14,8 +14,18 @@ export default {
   coverageReporters: ['text', 'lcov', 'html'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^(\\.{1,2}/.*)\\.js$': '$1', // Strip .js extensions from imports
   },
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
   testTimeout: 10000,
   verbose: true,
+  extensionsToTreatAsEsm: ['.ts'],
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        useESM: true,
+      },
+    ],
+  },
 };
