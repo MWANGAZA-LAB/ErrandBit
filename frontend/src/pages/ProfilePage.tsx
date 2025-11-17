@@ -6,18 +6,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { simpleAuthService } from '../services/simple-auth.service';
 import { runnerService, RunnerProfile } from '../services/runner.service';
 import toast from 'react-hot-toast';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
-  
-  // Support both OTP auth and simple auth
-  const simpleUser = simpleAuthService.getUser();
-  const currentUser = user || simpleUser;
-  const isUserAuthenticated = isAuthenticated || !!simpleUser;
   
   const [runnerProfile, setRunnerProfile] = useState<RunnerProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,16 +21,16 @@ export default function ProfilePage() {
   useEffect(() => {
     const initProfile = async () => {
       try {
-        if (!isUserAuthenticated) {
+        if (!isAuthenticated) {
           navigate('/login');
           return;
         }
 
-        if (currentUser) {
+        if (user) {
           // Handle both displayName (SimpleUser) and display_name (User)
-          const name = 'displayName' in currentUser 
-            ? currentUser.displayName 
-            : ('display_name' in currentUser ? (currentUser as any).display_name : '');
+          const name = 'displayName' in user 
+            ? user.displayName 
+            : ('display_name' in user ? (user as any).display_name : '');
           setDisplayName(name || '');
           await loadRunnerProfile();
         } else {
@@ -49,7 +43,7 @@ export default function ProfilePage() {
     };
 
     initProfile();
-  }, [isUserAuthenticated, navigate]);
+  }, [isAuthenticated, navigate]);
 
   const loadRunnerProfile = async () => {
     setLoading(true);
@@ -66,9 +60,7 @@ export default function ProfilePage() {
   };
 
   const handleLogout = () => {
-    // Logout from both auth systems
     logout();
-    simpleAuthService.logout();
     navigate('/login');
     toast.success('Logged out successfully');
   };
@@ -148,7 +140,7 @@ export default function ProfilePage() {
             <div>
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Username</dt>
               <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                {'username' in (currentUser || {}) ? (currentUser as any).username : (currentUser as any)?.phone || 'N/A'}
+                {'username' in (user || {}) ? (user as any).username : (user as any)?.phone || 'N/A'}
               </dd>
             </div>
             <div>
@@ -169,12 +161,12 @@ export default function ProfilePage() {
             <div>
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Member Since</dt>
               <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                {'created_at' in (currentUser || {}) ? new Date((currentUser as any).created_at).toLocaleDateString() : 'N/A'}
+                {'created_at' in (user || {}) ? new Date((user as any).created_at).toLocaleDateString() : 'N/A'}
               </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">User ID</dt>
-              <dd className="mt-1 text-xs text-gray-900 dark:text-gray-100 font-mono">{currentUser?.id}</dd>
+              <dd className="mt-1 text-xs text-gray-900 dark:text-gray-100 font-mono">{user?.id}</dd>
             </div>
           </dl>
         </div>

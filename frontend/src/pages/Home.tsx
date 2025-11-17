@@ -7,22 +7,22 @@ export default function Home() {
     <div className="space-y-8">
       
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
           Welcome to ErrandBit
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
+        <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-8 px-4">
           Trust-minimized local services marketplace powered by Bitcoin Lightning
         </p>
-        <div className="flex justify-center space-x-4">
+        <div className="flex flex-col sm:flex-row justify-center gap-4 px-4">
           <Link
             to="/browse-jobs"
-            className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+            className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors text-center min-h-[44px] flex items-center justify-center w-full sm:w-auto"
           >
             Browse Jobs
           </Link>
           <Link
             to="/create-job"
-            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-center min-h-[44px] flex items-center justify-center w-full sm:w-auto"
           >
             Post a Job
           </Link>

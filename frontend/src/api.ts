@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { simpleAuthService } from './services/simple-auth.service';
+import { authService } from './services/auth.service';
 
 export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
 
@@ -13,7 +13,7 @@ export const api = axios.create({
 
 // Add auth token to requests
 api.interceptors.request.use((config) => {
-  const token = simpleAuthService.getToken();
+  const token = authService.getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

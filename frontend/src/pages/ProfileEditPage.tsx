@@ -6,7 +6,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { simpleAuthService } from '../services/simple-auth.service';
 import toast from 'react-hot-toast';
 import {
   usePreferences,
@@ -46,9 +45,6 @@ interface SecurityLogEntry {
 export default function ProfileEditPage() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const simpleUser = simpleAuthService.getUser();
-  const currentUser = user || simpleUser;
-  const isUserAuthenticated = isAuthenticated || !!simpleUser;
 
   // Profile state
   const [profile, setProfile] = useState<ProfileData>({
@@ -81,7 +77,7 @@ export default function ProfileEditPage() {
 
   // React Query hooks - only fetch when authenticated
   const { data: preferencesData, isLoading: preferencesLoading } = usePreferences({
-    enabled: isUserAuthenticated,
+    enabled: isAuthenticated,
   });
   const { data: securityLogData, refetch: refetchSecurityLog } = useSecurityLog(20);
   const updateProfileMutation = useUpdateProfile();
@@ -97,13 +93,13 @@ export default function ProfileEditPage() {
     try {
       setLoading(true);
       // Load current user data from auth context
-      if (currentUser) {
+      if (user) {
         setProfile({
-          displayName: 'displayName' in currentUser ? currentUser.displayName : (currentUser as any).display_name || '',
-          email: (currentUser as any).email || '',
-          lightningAddress: (currentUser as any).lightning_address || '',
-          themePreference: (currentUser as any).theme_preference || 'dark',
-          avatarUrl: (currentUser as any).avatar_url || '',
+          displayName: 'displayName' in user ? user.displayName : (user as any).display_name || '',
+          email: (user as any).email || '',
+          lightningAddress: (user as any).lightning_address || '',
+          themePreference: (user as any).theme_preference || 'dark',
+          avatarUrl: (user as any).avatar_url || '',
         });
       }
     } catch (error) {
@@ -112,15 +108,15 @@ export default function ProfileEditPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentUser]);
+  }, [user]);
 
   useEffect(() => {
-    if (!isUserAuthenticated) {
+    if (!isAuthenticated) {
       navigate('/login');
       return;
     }
     loadProfile();
-  }, [isUserAuthenticated, navigate, loadProfile]);
+  }, [isAuthenticated, navigate, loadProfile]);
 
   // Sync preferences from React Query
   useEffect(() => {
@@ -128,28 +124,6 @@ export default function ProfileEditPage() {
       setPreferences(preferencesData);
     }
   }, [preferencesData]);
-
-  // Apply theme changes immediately and save to localStorage
-  useEffect(() => {
-    const applyTheme = (theme: 'light' | 'dark' | 'system') => {
-      const root = document.documentElement;
-      
-      if (theme === 'dark') {
-        root.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-      } else if (theme === 'light') {
-        root.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-      } else {
-        // System preference
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        root.classList.toggle('dark', prefersDark);
-        localStorage.setItem('theme', 'system');
-      }
-    };
-
-    applyTheme(profile.themePreference || 'dark');
-  }, [profile.themePreference]);
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -4,7 +4,7 @@
  */
 
 import axios from 'axios';
-import { simpleAuthService } from './simple-auth.service';
+import { authService } from './auth.service';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const API_BASE = `${API_URL}/api`;
@@ -61,7 +61,7 @@ export interface CreateJobInput {
 
 class JobService {
   private getHeaders() {
-    const token = simpleAuthService.getToken();
+    const token = authService.getToken();
     return {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'

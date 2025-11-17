@@ -10,7 +10,9 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (sessionId: string, code: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
+  register: (username: string, password: string, displayName?: string) => Promise<void>;
+  loginWithOTP: (sessionId: string, code: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -43,7 +45,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login = async (sessionId: string, code: string) => {
+  const login = async (username: string, password: string) => {
+    const response = await authService.login(username, password);
+    setUser(response.data?.user || response.user || null);
+  };
+
+  const register = async (username: string, password: string, displayName?: string) => {
+    const response = await authService.register(username, password, displayName);
+    setUser(response.data?.user || response.user || null);
+  };
+
+  const loginWithOTP = async (sessionId: string, code: string) => {
     const response = await authService.verifyOTP(sessionId, code);
     setUser(response.user as User);
   };
@@ -64,6 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         isLoading,
         login,
+        register,
+        loginWithOTP,
         logout,
         refreshUser
       }}

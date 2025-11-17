@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Home, Users, Briefcase, User, LogOut, LogIn, DollarSign } from 'lucide-react';
 import { useIsMobile } from '../hooks/useMobile';
-import { simpleAuthService } from '../services/simple-auth.service';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Layout() {
   const location = useLocation();
@@ -10,20 +10,19 @@ export default function Layout() {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  const isAuthenticated = simpleAuthService.isAuthenticated();
-  const user = simpleAuthService.getUser();
+  const { isAuthenticated, user, logout } = useAuth();
   
   const isActive = (path: string) => location.pathname === path;
   
   const closeMobileMenu = () => setMobileMenuOpen(false);
   
   const handleLogout = () => {
-    simpleAuthService.logout();
+    logout();
     navigate('/login');
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors duration-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors duration-200 overflow-x-hidden">
       <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -142,7 +141,7 @@ export default function Layout() {
                 onClick={closeMobileMenu}
                 className={`${
                   isActive('/') ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900'
-                } flex items-center px-3 py-2 border-l-4 text-base font-medium transition-colors`}
+                } flex items-center px-4 py-3 border-l-4 text-base font-medium transition-colors min-h-[48px]`}
                 aria-current={isActive('/') ? 'page' : undefined}
               >
                 <Home className="mr-3 h-5 w-5" aria-hidden="true" />
@@ -153,7 +152,7 @@ export default function Layout() {
                 onClick={closeMobileMenu}
                 className={`${
                   isActive('/find-runners') ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900'
-                } flex items-center px-3 py-2 border-l-4 text-base font-medium transition-colors`}
+                } flex items-center px-4 py-3 border-l-4 text-base font-medium transition-colors min-h-[48px]`}
                 aria-current={isActive('/find-runners') ? 'page' : undefined}
               >
                 <Users className="mr-3 h-5 w-5" aria-hidden="true" />
@@ -164,7 +163,7 @@ export default function Layout() {
                 onClick={closeMobileMenu}
                 className={`${
                   isActive('/my-jobs') ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900'
-                } flex items-center px-3 py-2 border-l-4 text-base font-medium transition-colors`}
+                } flex items-center px-4 py-3 border-l-4 text-base font-medium transition-colors min-h-[48px]`}
                 aria-current={isActive('/my-jobs') ? 'page' : undefined}
               >
                 <Briefcase className="mr-3 h-5 w-5" aria-hidden="true" />
@@ -175,7 +174,7 @@ export default function Layout() {
                 onClick={closeMobileMenu}
                 className={`${
                   isActive('/profile') ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900'
-                } flex items-center px-3 py-2 border-l-4 text-base font-medium transition-colors`}
+                } flex items-center px-4 py-3 border-l-4 text-base font-medium transition-colors min-h-[48px]`}
                 aria-current={isActive('/profile') ? 'page' : undefined}
               >
                 <User className="mr-3 h-5 w-5" aria-hidden="true" />

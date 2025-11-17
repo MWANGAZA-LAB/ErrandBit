@@ -8,7 +8,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { jobService, Job } from '../services/job.service';
 import { reviewService, Review } from '../services/review.service';
-import { simpleAuthService } from '../services/simple-auth.service';
 import { formatCentsAsUsd } from '../utils/currency';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -237,10 +236,8 @@ export default function JobDetailPage() {
 
   if (!job) return null;
 
-  // Get user ID - check both AuthContext and simpleAuthService
-  const contextUserId = user?.id;
-  const simpleUser = simpleAuthService.getUser();
-  const userId = contextUserId ? Number(contextUserId) : (simpleUser?.id || 0);
+  // Get user ID from AuthContext
+  const userId = user?.id ? Number(user.id) : 0;
   
   const isClient = userId === job.clientId;
   const isRunner = userId === job.runnerId;

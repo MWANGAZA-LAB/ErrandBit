@@ -5,10 +5,11 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { simpleAuthService } from '../services/simple-auth.service';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function SimpleLogin() {
   const navigate = useNavigate();
+  const { login, register, isAuthenticated } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,10 +22,10 @@ export default function SimpleLogin() {
 
   useEffect(() => {
     // If already authenticated, redirect to home
-    if (simpleAuthService.isAuthenticated()) {
+    if (isAuthenticated) {
       navigate('/');
     }
-  }, [navigate]);
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -41,9 +42,9 @@ export default function SimpleLogin() {
 
     try {
       if (mode === 'login') {
-        await simpleAuthService.login(formData.username, formData.password);
+        await login(formData.username, formData.password);
       } else {
-        await simpleAuthService.register(formData.username, formData.password, formData.displayName);
+        await register(formData.username, formData.password, formData.displayName);
       }
       navigate('/');
     } catch (err: any) {

@@ -6,6 +6,8 @@ import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstac
 import { api } from '../api';
 import { queryKeys } from '../lib/queryClient';
 import toast from 'react-hot-toast';
+import { useAuth } from '../contexts/AuthContext';
+import { applyTheme } from '../utils/darkMode';
 
 interface ProfileData {
   displayName?: string;
@@ -75,6 +77,7 @@ export function useSecurityLog(
  */
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
+  const { refreshUser } = useAuth();
 
   return useMutation({
     mutationFn: async (data: ProfileData) => {
@@ -89,10 +92,14 @@ export function useUpdateProfile() {
       const response = await api.put('/profile', apiData);
       return response.data.user;
     },
-    onSuccess: (updatedUser) => {
+    onSuccess: async (updatedUser) => {
+      // Invalidate and refetch profile queries to update all components
       queryClient.invalidateQueries({ queryKey: queryKeys.profile });
       
-      // Apply theme if changed
+      // Refresh the user data in AuthContext
+      await refreshUser();
+      
+      // Apply theme from the response
       if (updatedUser.theme_preference) {
         applyTheme(updatedUser.theme_preference);
       }
@@ -195,14 +202,4 @@ export function useUploadAvatar() {
       toast.error(error.response?.data?.error || 'Failed to upload avatar');
     },
   });
-}
-
-// Helper function to apply theme
-function applyTheme(theme: 'light' | 'dark' | 'system') {
-  if (theme === 'system') {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.classList.toggle('dark', prefersDark);
-  } else {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }
 }

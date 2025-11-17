@@ -1,6 +1,6 @@
 /**
  * Authentication Service
- * Handles OTP-based phone authentication
+ * Supports both simple username/password auth (MVP) and OTP-based phone authentication (production)
  */
 
 import axios from 'axios';
@@ -17,27 +17,86 @@ export interface VerifyResponse {
   success: boolean;
   token: string;
   user: {
-    id: string;
-    phone: string;
+    id: string | number;
+    phone?: string;
+    phone_number?: string;
     display_name: string;
+    displayName?: string;
+    username?: string;
   };
 }
 
 export interface User {
-  id: string;
-  phone: string;
-  display_name: string;
+  id: string | number;
+  phone?: string;
+  phone_number?: string;
+  display_name?: string;
+  displayName?: string;
   email?: string;
-  created_at: string;
+  username?: string;
+  avatar_url?: string;
+  bio?: string;
+  theme_preference?: string;
+  created_at?: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  user?: User;
+  data?: {
+    token: string;
+    user: User;
+  };
 }
 
 class AuthService {
   private token: string | null = null;
+  private user: User | null = null;
 
   constructor() {
-    this.token = localStorage.getItem('token');
+    // Support both token keys for migration compatibility
+    this.token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+    const storedUser = localStorage.getItem('auth_user');
+    if (storedUser) {
+      try {
+        this.user = JSON.parse(storedUser);
+      } catch (e) {
+        console.error('Failed to parse stored user', e);
+      }
+    }
   }
 
+  // Simple username/password auth (current MVP implementation)
+  async register(username: string, password: string, displayName?: string): Promise<AuthResponse> {
+    const response = await axios.post<AuthResponse>(`${API_URL}/auth-simple/register`, {
+      username,
+      password,
+      display_name: displayName
+    });
+    
+    if (response.data.success && response.data.data) {
+      this.setAuthData(response.data.data.token, response.data.data.user);
+    }
+    
+    return response.data;
+  }
+
+  async login(username: string, password: string): Promise<AuthResponse> {
+    const response = await axios.post<AuthResponse>(`${API_URL}/auth-simple/login`, {
+      username,
+      password
+    });
+    
+    if (response.data.success && response.data.data) {
+      this.setAuthData(response.data.data.token, response.data.data.user);
+    }
+    
+    return response.data;
+  }
+
+  // OTP-based phone auth (future production implementation)
   async requestOTP(phone: string): Promise<OTPResponse> {
     const response = await axios.post(`${API_URL}/auth/request-otp`, { phone });
     return response.data;
@@ -50,30 +109,50 @@ class AuthService {
     });
     
     if (response.data.success) {
-      this.token = response.data.token;
-      localStorage.setItem('token', response.data.token);
+      this.setAuthData(response.data.token, response.data.user);
     }
     
     return response.data;
   }
 
   async getProfile(): Promise<User> {
-    const response = await axios.get(`${API_URL}/auth/me`, {
+    const response = await axios.get<{ user?: User; data?: { user: User } }>(`${API_URL}/auth-simple/me`, {
       headers: { Authorization: `Bearer ${this.token}` }
     });
-    return response.data.user;
+    const user = response.data.user || response.data.data?.user;
+    if (user) {
+      this.user = user;
+      localStorage.setItem('auth_user', JSON.stringify(user));
+    }
+    return user!;
   }
 
   async updateProfile(data: Partial<User>): Promise<User> {
-    const response = await axios.patch(`${API_URL}/auth/me`, data, {
+    const response = await axios.put<{ user: User }>(`${API_URL}/api/profile`, data, {
       headers: { Authorization: `Bearer ${this.token}` }
     });
+    if (response.data.user) {
+      this.user = { ...this.user, ...response.data.user };
+      localStorage.setItem('auth_user', JSON.stringify(this.user));
+    }
     return response.data.user;
+  }
+
+  private setAuthData(token: string, user: User) {
+    this.token = token;
+    this.user = user;
+    // Store with both keys for compatibility during migration
+    localStorage.setItem('token', token);
+    localStorage.setItem('auth_token', token);
+    localStorage.setItem('auth_user', JSON.stringify(user));
   }
 
   logout() {
     this.token = null;
+    this.user = null;
     localStorage.removeItem('token');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
   }
 
   isAuthenticated(): boolean {
@@ -82,6 +161,17 @@ class AuthService {
 
   getToken(): string | null {
     return this.token;
+  }
+
+  getUser(): User | null {
+    return this.user;
+  }
+
+  updateUser(userData: Partial<User>) {
+    if (this.user) {
+      this.user = { ...this.user, ...userData };
+      localStorage.setItem('auth_user', JSON.stringify(this.user));
+    }
   }
 }
 

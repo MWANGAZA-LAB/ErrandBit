@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { jobService, Job } from '../services/job.service';
-import { simpleAuthService } from '../services/simple-auth.service';
+
 import { formatCentsAsUsd } from '../utils/currency';
 import UniversalPayment from '../components/UniversalPayment';
 import axios from 'axios';
@@ -19,11 +19,6 @@ export default function PaymentPage() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   
-  // Support both OTP auth and simple auth
-  const simpleUser = simpleAuthService.getUser();
-  const currentUser = user || simpleUser;
-  const isUserAuthenticated = isAuthenticated || !!simpleUser;
-  
   const [job, setJob] = useState<Job | null>(null);
   const [invoice, setInvoice] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,13 +27,13 @@ export default function PaymentPage() {
   const [showPayment, setShowPayment] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
-  // Helper to get auth token from either OTP auth or simple auth
+  // Helper to get auth token
   const getAuthToken = () => {
     return localStorage.getItem('token') || localStorage.getItem('auth_token');
   };
 
   useEffect(() => {
-    if (!isUserAuthenticated) {
+    if (!isAuthenticated) {
       navigate('/login');
       return;
     }
@@ -46,7 +41,7 @@ export default function PaymentPage() {
     if (id) {
       loadJob();
     }
-  }, [id, isUserAuthenticated, navigate]);
+  }, [id, isAuthenticated, navigate]);
 
   const loadJob = async () => {
     if (!id) return;
@@ -65,7 +60,7 @@ export default function PaymentPage() {
       }
 
       // Check if user is the client
-      if (data.clientId !== Number(currentUser?.id)) {
+      if (data.clientId !== Number(user?.id)) {
         setError('Only the job client can make payment');
         return;
       }
@@ -231,30 +226,32 @@ export default function PaymentPage() {
       </div>
 
       {/* Job Summary */}
-      <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg p-6 mb-6 transition-colors">
+      <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/50 rounded-lg p-4 sm:p-6 mb-6 transition-colors">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Payment Summary</h2>
         
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">Job:</span>
-            <span className="font-medium text-gray-900 dark:text-white">{job.title}</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">Amount:</span>
-            <span className="font-medium text-gray-900 dark:text-white">
-              {formatCentsAsUsd(job.priceCents)}
-            </span>
-          </div>
-          
-          {invoice && (
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="min-w-[280px] px-4 sm:px-0 space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Amount (sats):</span>
+              <span className="text-gray-600 dark:text-gray-400">Job:</span>
+              <span className="font-medium text-gray-900 dark:text-white truncate ml-2 max-w-[60%]">{job.title}</span>
+            </div>
+            
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-400">Amount:</span>
               <span className="font-medium text-gray-900 dark:text-white">
-                {invoice.amountSats.toLocaleString()} sats
+                {formatCentsAsUsd(job.priceCents)}
               </span>
             </div>
-          )}
+            
+            {invoice && (
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Amount (sats):</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {invoice.amountSats.toLocaleString()} sats
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
