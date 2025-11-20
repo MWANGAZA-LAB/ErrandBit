@@ -136,7 +136,9 @@
 <a name='L71'></a><a href='#L71'>71</a>
 <a name='L72'></a><a href='#L72'>72</a>
 <a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -157,15 +159,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -176,6 +169,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -225,11 +229,34 @@ const runnerController = <span class="cstat-no" title="statement not covered" >n
  * @route   GET /api/runners/search
  * @desc    Search runners with filters (PUBLIC)
  * @access  Public
- * @note    Must be before authenticate middleware and /:id route
+ * @note    Must be before /:id route to avoid matching "search" as an ID
  */
 <span class="cstat-no" title="statement not covered" >router.get('/search', runnerController.searchRunners);</span>
 &nbsp;
-// All other routes require authentication
+/**
+ * @route   GET /api/runners/me
+ * @desc    Get current user's runner profile
+ * @access  Private (requires authentication)
+ * @note    MUST be before /:id route to avoid matching "me" as an ID
+ */
+<span class="cstat-no" title="statement not covered" >router.get('/me', authenticate, runnerController.getMyRunnerProfile);</span>
+&nbsp;
+/**
+ * @route   GET /api/runners
+ * @desc    Get all runners with pagination (PUBLIC)
+ * @access  Public - anyone can browse runners
+ */
+<span class="cstat-no" title="statement not covered" >router.get('/', runnerController.getAllRunners);</span>
+&nbsp;
+/**
+ * @route   GET /api/runners/:id
+ * @desc    Get runner profile by ID (PUBLIC)
+ * @access  Public - anyone can view runner profiles
+ * @note    Must be AFTER specific routes like /search and /me
+ */
+<span class="cstat-no" title="statement not covered" >router.get('/:id', runnerController.getRunnerProfile);</span>
+&nbsp;
+// Authentication required for routes below
 <span class="cstat-no" title="statement not covered" >router.use(authenticate);</span>
 &nbsp;
 /**
@@ -238,27 +265,6 @@ const runnerController = <span class="cstat-no" title="statement not covered" >n
  * @access  Private (authenticated users)
  */
 <span class="cstat-no" title="statement not covered" >router.post('/', runnerController.createRunnerProfile);</span>
-&nbsp;
-/**
- * @route   GET /api/runners/me
- * @desc    Get current user's runner profile
- * @access  Private
- */
-<span class="cstat-no" title="statement not covered" >router.get('/me', runnerController.getMyRunnerProfile);</span>
-&nbsp;
-/**
- * @route   GET /api/runners/:id
- * @desc    Get runner profile by ID
- * @access  Private
- */
-<span class="cstat-no" title="statement not covered" >router.get('/:id', runnerController.getRunnerProfile);</span>
-&nbsp;
-/**
- * @route   GET /api/runners
- * @desc    Get all runners with pagination
- * @access  Private
- */
-<span class="cstat-no" title="statement not covered" >router.get('/', runnerController.getAllRunners);</span>
 &nbsp;
 /**
  * @route   PATCH /api/runners/:id
@@ -289,7 +295,7 @@ export default router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-20T17:31:06.489Z
+                at 2025-11-20T20:11:50.415Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
