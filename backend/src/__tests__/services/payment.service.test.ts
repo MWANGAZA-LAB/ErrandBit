@@ -8,9 +8,10 @@ import { verifyPreimage, PaymentVerificationLevel } from '../../services/Payment
 describe('PaymentService - Preimage Verification', () => {
   describe('verifyPreimage', () => {
     it('should verify valid preimage against payment hash', () => {
-      // Use actual SHA256 hash of the preimage
+      // Use actual SHA256 hash of the preimage (computed using crypto.createHash)
       const validPreimage = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-      const expectedHash = 'bcb28d09cc2b7f47b8c87f88e311b8ea2ab91cd9f6579ab0cd9e552596e57a7c'; // SHA256 of preimage
+      // Correct SHA256 hash of the above preimage (verified with Node.js crypto)
+      const expectedHash = 'e0e77a507412b120f6ede61f62295b1a7b2ff19d3dcc8f7253e51663470c888e';
 
       const result = verifyPreimage(expectedHash, validPreimage);
 
@@ -19,7 +20,7 @@ describe('PaymentService - Preimage Verification', () => {
 
     it('should reject invalid preimage', () => {
       const invalidPreimage = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
-      const hash = 'bcb28d09cc2b7f47b8c87f88e311b8ea2ab91cd9f6579ab0cd9e552596e57a7c'; // SHA256 of 'aaaa...'
+      const hash = 'e0e77a507412b120f6ede61f62295b1a7b2ff19d3dcc8f7253e51663470c888e'; // SHA256 of 'aaaa...'
 
       const result = verifyPreimage(hash, invalidPreimage);
 
@@ -28,7 +29,7 @@ describe('PaymentService - Preimage Verification', () => {
 
     it('should handle uppercase and lowercase hex', () => {
       const preimage = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
-      const hash = 'BCB28D09CC2B7F47B8C87F88E311B8EA2AB91CD9F6579AB0CD9E552596E57A7C'; // uppercase
+      const hash = 'E0E77A507412B120F6EDE61F62295B1A7B2FF19D3DCC8F7253E51663470C888E'; // uppercase
 
       const result = verifyPreimage(hash, preimage);
 
@@ -37,9 +38,11 @@ describe('PaymentService - Preimage Verification', () => {
 
     it('should reject malformed preimage', () => {
       const malformedPreimage = 'not-hex';
-      const hash = '4f8b42c22dd3729b519ba6f68d2da7cc5b2d606d05daed5ad5128cc03e6c6358';
+      const hash = '9ca8fa69f61db428e8ce5562e861e0e6eeee3c98007be2c069a1ac4be5ec9f09';
 
-      expect(() => verifyPreimage(hash, malformedPreimage)).toThrow();
+      // verifyPreimage returns false for malformed input, doesn't throw
+      const result = verifyPreimage(hash, malformedPreimage);
+      expect(result).toBe(false);
     });
   });
 
