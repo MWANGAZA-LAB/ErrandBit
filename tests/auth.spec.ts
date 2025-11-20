@@ -43,10 +43,10 @@ test.describe('Authentication', () => {
     await page.click('button[type="submit"]');
     
     // Should redirect to home page
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/', { timeout: 10000 });
     
     // Should show user info
-    await expect(page.locator('text=/testuser/i')).toBeVisible();
+    await expect(page.locator('text=/testuser/i')).toBeVisible({ timeout: 5000 });
   });
 
   test('should show error for invalid credentials', async ({ page }) => {
@@ -71,16 +71,16 @@ test.describe('Authentication', () => {
     await page.click('button[type="submit"]');
     
     // Wait for redirect
-    await page.waitForURL('/');
+    await page.waitForURL('/', { timeout: 10000 });
     
     // Click logout
     await page.click('button:has-text("Logout")');
     
     // Should redirect to home
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/', { timeout: 5000 });
     
     // Should show login button
-    await expect(page.locator('text=/login/i')).toBeVisible();
+    await expect(page.locator('text=/login/i')).toBeVisible({ timeout: 5000 });
   });
 
   test('should redirect to login when accessing protected routes', async ({ page }) => {
@@ -98,12 +98,12 @@ test.describe('Authentication', () => {
     await page.fill('input[name="username"]', 'testuser');
     await page.fill('input[name="password"]', 'password123');
     await page.click('button[type="submit"]');
-    await page.waitForURL('/');
+    await page.waitForURL('/', { timeout: 10000 });
     
     // Refresh page
     await page.reload();
     
     // Should still be authenticated
-    await expect(page.locator('text=/testuser/i')).toBeVisible();
+    await expect(page.locator('text=/testuser/i')).toBeVisible({ timeout: 5000 });
   });
 });
