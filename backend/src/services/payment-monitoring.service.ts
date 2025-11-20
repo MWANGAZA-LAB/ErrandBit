@@ -4,6 +4,7 @@
  */
 
 import { getPool } from '../db.js';
+import { emailService } from './email.service.js';
 import logger from '../utils/logger.js';
 import { lightningService } from './lightning.service.js';
 
@@ -187,17 +188,21 @@ export class PaymentMonitoringService {
   private async alertStuckPayments(stuckPayments: StuckPayment[]): Promise<void> {
     if (stuckPayments.length === 0) return;
 
+    const totalSats = stuckPayments.reduce((sum, p) => sum + p.amount_sats, 0);
+    const paymentHashes = stuckPayments.map(p => p.payment_hash);
+
     logger.warn('🚨 STUCK PAYMENTS ALERT', {
       count: stuckPayments.length,
-      payment_hashes: stuckPayments.map(p => p.payment_hash),
-      total_amount_sats: stuckPayments.reduce((sum, p) => sum + p.amount_sats, 0)
+      payment_hashes: paymentHashes,
+      total_amount_sats: totalSats
     });
 
-    // TODO: Send email alert
-    // await emailService.sendAlert({
-    //   subject: `Alert: ${stuckPayments.length} stuck payments`,
-    //   body: `Found ${stuckPayments.length} payments stuck for over ${this.stuckPaymentThresholdHours} hours.`
-    // });
+    // Send email alert
+    await emailService.sendStuckPaymentsAlert(
+      stuckPayments.length,
+      totalSats,
+      paymentHashes
+    );
   }
 
   /**
@@ -209,11 +214,8 @@ export class PaymentMonitoringService {
       last_check: this.lastHealthCheck
     });
 
-    // TODO: Send email alert
-    // await emailService.sendAlert({
-    //   subject: 'CRITICAL: Lightning node connection failed',
-    //   body: 'The Lightning node connection health check failed. Immediate action required.'
-    // });
+    // Send email alert
+    await emailService.sendLightningDownAlert();
   }
 
   /**
@@ -225,11 +227,8 @@ export class PaymentMonitoringService {
       threshold: 90
     });
 
-    // TODO: Send email alert
-    // await emailService.sendAlert({
-    //   subject: `Alert: Low payment success rate (${successRate.toFixed(1)}%)`,
-    //   body: `Payment success rate has dropped to ${successRate.toFixed(1)}%. Normal rate is >90%.`
-    // });
+    // Send email alert
+    await emailService.sendLowSuccessRateAlert(successRate, '24h');
   }
 
   /**

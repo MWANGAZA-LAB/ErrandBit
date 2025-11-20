@@ -15,18 +15,21 @@ export interface RunnerProfile {
   bio: string;
   tags: string[];
   hourlyRate?: number;
-  serviceRadius: number;
-  available: boolean;
-  location: {
+  serviceRadius?: number;
+  available?: boolean;
+  location?: {
     lat: number;
     lng: number;
   };
   address?: string;
-  avgRating?: number;
+  avgRating?: number | string; // Backend returns string like "0.00"
   totalJobs: number;
-  completionRate?: number;
+  completionRate?: number | string; // Backend returns string like "0.00"
   createdAt: string;
   updatedAt: string;
+  displayName?: string;
+  lightningAddress?: string;
+  avatarUrl?: string;
 }
 
 export interface CreateRunnerInput {
@@ -60,10 +63,13 @@ export interface UpdateRunnerInput {
 class RunnerService {
   private getHeaders() {
     const token = authService.getToken();
-    return {
-      Authorization: `Bearer ${token}`,
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json'
     };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
   }
 
   async createProfile(data: CreateRunnerInput): Promise<RunnerProfile> {

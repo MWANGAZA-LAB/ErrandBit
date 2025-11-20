@@ -2,12 +2,15 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import App from './App'
 import './index.css'
 import { reportWebVitals } from './utils/webVitals'
 import { initErrorTracking } from './utils/errorTracking'
+import { initSentry } from './utils/sentry'
 import { initDarkMode, watchSystemTheme, detectReducedMotion, listenForThemeChanges } from './utils/darkMode'
+
+// Initialize Sentry error tracking FIRST
+initSentry();
 
 // Initialize dark mode IMMEDIATELY before React renders
 initDarkMode();
@@ -47,8 +50,6 @@ createRoot(el).render(
       <BrowserRouter>
         <App />
       </BrowserRouter>
-      {/* React Query DevTools - only in development */}
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </React.StrictMode>
 )

@@ -6,6 +6,7 @@
 import { Router, Response } from 'express';
 import { authenticate } from '../middleware/auth.js';
 import { paymentMonitoringService } from '../services/payment-monitoring.service.js';
+import { getPool } from '../db.js';
 import type { AuthenticatedRequest } from '../types/index.js';
 import logger from '../utils/logger.js';
 
@@ -66,13 +67,29 @@ router.get('/lightning/health', authenticate, async (_req: AuthenticatedRequest,
  * Manually trigger cleanup of expired invoices
  * Admin only
  */
-router.post('/cleanup/expired-invoices', authenticate, async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/cleanup/expired-invoices', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    // TODO: Add admin role check
-    // if (req.userRole !== 'admin') {
-    //   res.status(403).json({ error: 'Admin access required' });
-    //   return;
-    // }
+    // Admin role check - only allow admins to manually trigger cleanup
+    // For now, check if user has admin flag in database or is in admin list
+    const pool = getPool();
+    if (pool && req.userId) {
+      const userResult = await pool.query(
+        'SELECT is_admin FROM users WHERE id = $1',
+        [req.userId]
+      );
+      
+      const isAdmin = userResult.rows[0]?.is_admin || false;
+      if (!isAdmin) {
+        res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'Admin access required for manual cleanup operations'
+        });
+        return;
+      }
+    } else {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
 
     const expiredCount = await paymentMonitoringService.cleanupExpiredInvoices();
 

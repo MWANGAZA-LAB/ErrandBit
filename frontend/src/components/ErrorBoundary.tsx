@@ -40,8 +40,20 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // TODO: Send to error tracking service (Sentry, LogRocket, etc.)
-    // errorTrackingService.logError(error, errorInfo);
+    // Send to Sentry error tracking
+    if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+      // Sentry will be initialized in main.tsx
+      const Sentry = (window as any).Sentry;
+      if (Sentry) {
+        Sentry.captureException(error, {
+          contexts: {
+            react: {
+              componentStack: errorInfo.componentStack,
+            },
+          },
+        });
+      }
+    }
   }
 
   handleReset = () => {

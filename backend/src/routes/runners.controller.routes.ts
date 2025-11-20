@@ -14,11 +14,34 @@ const runnerController = new RunnerController();
  * @route   GET /api/runners/search
  * @desc    Search runners with filters (PUBLIC)
  * @access  Public
- * @note    Must be before authenticate middleware and /:id route
+ * @note    Must be before /:id route to avoid matching "search" as an ID
  */
 router.get('/search', runnerController.searchRunners);
 
-// All other routes require authentication
+/**
+ * @route   GET /api/runners/me
+ * @desc    Get current user's runner profile
+ * @access  Private (requires authentication)
+ * @note    MUST be before /:id route to avoid matching "me" as an ID
+ */
+router.get('/me', authenticate, runnerController.getMyRunnerProfile);
+
+/**
+ * @route   GET /api/runners
+ * @desc    Get all runners with pagination (PUBLIC)
+ * @access  Public - anyone can browse runners
+ */
+router.get('/', runnerController.getAllRunners);
+
+/**
+ * @route   GET /api/runners/:id
+ * @desc    Get runner profile by ID (PUBLIC)
+ * @access  Public - anyone can view runner profiles
+ * @note    Must be AFTER specific routes like /search and /me
+ */
+router.get('/:id', runnerController.getRunnerProfile);
+
+// Authentication required for routes below
 router.use(authenticate);
 
 /**
@@ -27,27 +50,6 @@ router.use(authenticate);
  * @access  Private (authenticated users)
  */
 router.post('/', runnerController.createRunnerProfile);
-
-/**
- * @route   GET /api/runners/me
- * @desc    Get current user's runner profile
- * @access  Private
- */
-router.get('/me', runnerController.getMyRunnerProfile);
-
-/**
- * @route   GET /api/runners/:id
- * @desc    Get runner profile by ID
- * @access  Private
- */
-router.get('/:id', runnerController.getRunnerProfile);
-
-/**
- * @route   GET /api/runners
- * @desc    Get all runners with pagination
- * @access  Private
- */
-router.get('/', runnerController.getAllRunners);
 
 /**
  * @route   PATCH /api/runners/:id

@@ -101,7 +101,15 @@ export class EarningsController {
         return;
       }
 
-      // TODO: Verify the earning belongs to this runner
+      // Verify the earning belongs to this runner
+      const earningOwnership = await payoutService.verifyEarningOwnership(earningId, Number(runnerId));
+      if (!earningOwnership) {
+        res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'You do not have permission to process this earning'
+        });
+        return;
+      }
 
       const success = await payoutService.processPayout(earningId);
 

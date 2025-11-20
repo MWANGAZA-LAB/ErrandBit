@@ -8,6 +8,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import swaggerUi from 'swagger-ui-express';
 import logger, { stream } from './utils/logger.js';
 import { swaggerSpec } from './config/swagger.js';
@@ -38,6 +40,20 @@ import { generalLimiter, authLimiter, paymentLimiter } from './middleware/rateLi
 import { errorHandler, notFoundHandler } from './middleware/error/errorHandler.js';
 
 dotenv.config();
+
+// Initialize Sentry for error tracking
+if (process.env['SENTRY_DSN'] && process.env.NODE_ENV === 'production') {
+  Sentry.init({
+    dsn: process.env['SENTRY_DSN'],
+    environment: process.env.NODE_ENV || 'development',
+    integrations: [
+      nodeProfilingIntegration(),
+    ],
+    tracesSampleRate: 0.1, // 10% of transactions for performance monitoring
+    profilesSampleRate: 0.1, // 10% of transactions for profiling
+  });
+  logger.info('✅ Sentry error tracking initialized');
+}
 
 const app: Express = express();
 const isDevelopment: boolean = process.env.NODE_ENV === 'development';
@@ -92,6 +108,12 @@ app.use('/api/admin', adminRouter);
 
 // Error handling - New centralized handlers
 app.use(notFoundHandler);
+
+// Sentry error handler must be before other error handlers
+if (process.env['SENTRY_DSN'] && process.env.NODE_ENV === 'production') {
+  app.use(Sentry.setupExpressErrorHandler(app) as any);
+}
+
 app.use(errorHandler);
 
 // Legacy error handlers (can be removed after migration)

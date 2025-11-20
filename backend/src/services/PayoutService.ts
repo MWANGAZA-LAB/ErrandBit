@@ -165,6 +165,28 @@ export class PayoutService {
   }
 
   /**
+   * Verify earning belongs to runner (security check)
+   */
+  async verifyEarningOwnership(earningId: number, runnerId: number): Promise<boolean> {
+    const pool = getPool();
+    if (!pool) {
+      throw new Error('Database connection not available');
+    }
+
+    try {
+      const result = await pool.query(
+        `SELECT id FROM runner_earnings WHERE id = $1 AND runner_id = $2`,
+        [earningId, runnerId]
+      );
+
+      return result.rows.length > 0;
+    } catch (error) {
+      logger.error('Error verifying earning ownership', { error, earningId, runnerId });
+      return false;
+    }
+  }
+
+  /**
    * Process payout to runner
    */
   async processPayout(earningId: number): Promise<boolean> {
