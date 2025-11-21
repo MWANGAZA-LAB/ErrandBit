@@ -42,14 +42,23 @@ jobs:
       working-directory: ./frontend
       run: npm ci
     
+    - name: Create backend .env file
+      working-directory: ./backend
+      run: |
+        cat > .env << EOF
+        DATABASE_URL=postgresql://errandbit:test_password@localhost:5432/errandbit_test
+        NODE_ENV=test
+        JWT_SECRET=test_secret
+        JWT_REFRESH_SECRET=test_refresh_secret
+        PORT=3000
+        EOF
+    
+    - name: Run database migrations
+      working-directory: ./backend
+      run: npm run migrate || true
+    
     - name: Start backend server
       working-directory: ./backend
-      env:
-        DATABASE_URL: postgresql://errandbit:test_password@localhost:5432/errandbit_test
-        NODE_ENV: test
-        JWT_SECRET: test_secret
-        JWT_REFRESH_SECRET: test_refresh_secret
-        PORT: 3000
       run: |
         npm run dev &
         npx wait-on http://localhost:3000/health --timeout 60000
