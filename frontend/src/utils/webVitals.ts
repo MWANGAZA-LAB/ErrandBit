@@ -67,18 +67,32 @@ function logMetric(metric: Metric) {
  * Report Web Vitals
  */
 export function reportWebVitals(onPerfEntry?: (metric: Metric) => void) {
-  const handleMetric = (metric: Metric) => {
-    logMetric(metric)
-    sendToAnalytics(metric)
-    onPerfEntry?.(metric)
-  }
+  try {
+    const handleMetric = (metric: Metric) => {
+      try {
+        logMetric(metric)
+        sendToAnalytics(metric)
+        onPerfEntry?.(metric)
+      } catch (error) {
+        // Silently fail - don't break the app
+        if (import.meta.env.DEV) {
+          console.warn('Web Vitals metric error:', error)
+        }
+      }
+    }
 
-  // Core Web Vitals
-  onCLS(handleMetric) // Cumulative Layout Shift
-  onFCP(handleMetric) // First Contentful Paint
-  onLCP(handleMetric) // Largest Contentful Paint
-  onTTFB(handleMetric) // Time to First Byte
-  onINP(handleMetric) // Interaction to Next Paint (replaces FID)
+    // Core Web Vitals
+    onCLS(handleMetric) // Cumulative Layout Shift
+    onFCP(handleMetric) // First Contentful Paint
+    onLCP(handleMetric) // Largest Contentful Paint
+    onTTFB(handleMetric) // Time to First Byte
+    onINP(handleMetric) // Interaction to Next Paint (replaces FID)
+  } catch (error) {
+    // Silently fail if web-vitals library has issues
+    if (import.meta.env.DEV) {
+      console.warn('Web Vitals initialization error:', error)
+    }
+  }
 }
 
 /**

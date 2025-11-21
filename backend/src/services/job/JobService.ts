@@ -58,7 +58,7 @@ export class JobService {
     }
 
     // Validate price
-    if (data.priceCents <= 0) {
+    if (!data.priceCents || data.priceCents <= 0) {
       throw new ValidationError('Price must be greater than 0', 'INVALID_PRICE');
     }
 

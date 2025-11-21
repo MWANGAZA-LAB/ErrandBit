@@ -50,13 +50,14 @@ export interface Job {
 export interface CreateJobInput {
   title: string;
   description: string;
-  priceCents: number;
-  location: {
-    lat: number;
-    lng: number;
-    address?: string;
-  };
-  deadline?: string;
+  category: 'delivery' | 'shopping' | 'cleaning' | 'moving' | 'handyman' | 'other';
+  pickup_lat: number;
+  pickup_lng: number;
+  pickup_address: string;
+  dropoff_lat?: number;
+  dropoff_lng?: number;
+  dropoff_address?: string;
+  budget_max_usd: number;
 }
 
 class JobService {

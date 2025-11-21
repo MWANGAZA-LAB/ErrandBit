@@ -3,32 +3,38 @@
  * Form for posting new jobs
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jobService, CreateJobInput } from '../services/job.service';
+import { authService } from '../services/auth.service';
 import LocationPicker from '../components/LocationPicker';
 import CurrencyInput from '../components/CurrencyInput';
-
-// Category removed from new interface
+import toast from 'react-hot-toast';
 
 export default function CreateJob() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
+  // Check authentication on mount
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      toast.error('Please login to create a job');
+      navigate('/login');
+    }
+  }, [navigate]);
+  
   const [formData, setFormData] = useState<CreateJobInput>({
     title: '',
     description: '',
-    priceCents: 1000, // $10.00
-    location: {
-      lat: 0,
-      lng: 0,
-      address: ''
-    },
-    deadline: ''
+    category: 'delivery',
+    pickup_lat: 0,
+    pickup_lng: 0,
+    pickup_address: '',
+    budget_max_usd: 10.00
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -39,7 +45,7 @@ export default function CreateJob() {
   const handlePriceChange = (cents: number) => {
     setFormData(prev => ({
       ...prev,
-      priceCents: cents
+      budget_max_usd: cents / 100 // Convert cents to dollars
     }));
   };
 
@@ -56,13 +62,13 @@ export default function CreateJob() {
       if (!formData.description.trim()) {
         throw new Error('Job description is required');
       }
-      if (formData.priceCents <= 0) {
+      if (formData.budget_max_usd <= 0) {
         throw new Error('Job price must be greater than 0');
       }
-      if (!formData.location.address) {
+      if (!formData.pickup_address) {
         throw new Error('Job location is required');
       }
-      if (formData.location.lat === 0 && formData.location.lng === 0) {
+      if (formData.pickup_lat === 0 && formData.pickup_lng === 0) {
         throw new Error('Please select a valid location');
       }
 
@@ -107,7 +113,27 @@ export default function CreateJob() {
             />
           </div>
 
-          {/* Category removed from new interface */}
+          {/* Category */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Category
+            </label>
+            <select
+              name="category"
+              id="category"
+              required
+              value={formData.category}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
+            >
+              <option value="delivery">Delivery</option>
+              <option value="shopping">Shopping</option>
+              <option value="cleaning">Cleaning</option>
+              <option value="moving">Moving</option>
+              <option value="handyman">Handyman</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
 
           {/* Description */}
           <div>
@@ -132,15 +158,13 @@ export default function CreateJob() {
               onLocationSelect={(lat, lng, address) => {
                 setFormData(prev => ({
                   ...prev,
-                  location: {
-                    lat,
-                    lng,
-                    address: address || ''
-                  }
+                  pickup_lat: lat,
+                  pickup_lng: lng,
+                  pickup_address: address || ''
                 }));
               }}
-              initialLat={formData.location.lat}
-              initialLng={formData.location.lng}
+              initialLat={formData.pickup_lat}
+              initialLng={formData.pickup_lng}
               label="Job Location"
               required
             />
@@ -149,7 +173,7 @@ export default function CreateJob() {
           {/* Price with Multi-Currency Support */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
             <CurrencyInput
-              value={formData.priceCents}
+              value={Math.round(formData.budget_max_usd * 100)} // Convert dollars to cents
               onChange={handlePriceChange}
               label="Job Price"
               required

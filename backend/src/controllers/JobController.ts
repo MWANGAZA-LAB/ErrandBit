@@ -38,12 +38,27 @@ export class JobController {
     try {
       const clientId = this.ensureUserId(req.user?.id);
 
+      // Convert budget_max_usd to priceCents if provided
+      let priceCents = req.body.priceCents;
+      if (!priceCents && req.body.budget_max_usd !== undefined) {
+        priceCents = Math.round(req.body.budget_max_usd * 100);
+      }
+
+      // Handle location - support both old format (location object) and new format (pickup/dropoff)
+      let location = req.body.location;
+      if (!location && req.body.pickup_lat && req.body.pickup_lng) {
+        location = {
+          lat: req.body.pickup_lat,
+          lng: req.body.pickup_lng,
+        };
+      }
+
       const jobData = {
         clientId,
         title: req.body.title,
         description: req.body.description,
-        priceCents: req.body.priceCents,
-        location: req.body.location,
+        priceCents,
+        location,
         deadline: req.body.deadline,
       };
 
