@@ -59,6 +59,7 @@ export class JobController {
         description: req.body.description,
         priceCents,
         location,
+        address: req.body.pickup_address || req.body.address,
         deadline: req.body.deadline,
       };
 

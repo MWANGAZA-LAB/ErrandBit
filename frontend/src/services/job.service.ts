@@ -63,6 +63,14 @@ export interface CreateJobInput {
 class JobService {
   private getHeaders() {
     const token = authService.getToken();
+    
+    if (!token) {
+      console.error('❌ No authentication token found. User must be logged in to create jobs.');
+      throw new Error('Authentication required. Please log in first.');
+    }
+    
+    console.log('✅ Auth token present:', token.substring(0, 20) + '...');
+    
     return {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -70,11 +78,23 @@ class JobService {
   }
 
   async createJob(data: CreateJobInput): Promise<Job> {
-    const response = await axios.post(`${API_BASE}/jobs`, data, {
-      headers: this.getHeaders()
-    });
-    const apiJob = response.data.data || response.data.job;
-    return transformJob(apiJob);
+    try {
+      console.log('📤 Creating job:', data);
+      const response = await axios.post(`${API_BASE}/jobs`, data, {
+        headers: this.getHeaders()
+      });
+      console.log('✅ Job created successfully:', response.data);
+      const apiJob = response.data.data || response.data.job;
+      return transformJob(apiJob);
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        console.error('❌ 401 Unauthorized - Token invalid or expired. Please log in again.');
+        authService.logout(); // Clear invalid token
+        throw new Error('Your session has expired. Please log in again.');
+      }
+      console.error('❌ Failed to create job:', error.response?.data || error.message);
+      throw error;
+    }
   }
 
   async getNearbyJobs(lat: number, lng: number, radiusKm: number = 10, status?: string): Promise<Job[]> {

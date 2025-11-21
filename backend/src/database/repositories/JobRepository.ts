@@ -15,6 +15,7 @@ export interface Job {
   description: string;
   price_cents: number;
   location: string | null;
+  address: string | null;
   status: JobStatus;
   deadline: Date | null;
   created_at: Date;
@@ -30,6 +31,7 @@ export interface CreateJobDto {
   description: string;
   priceCents: number;
   location?: { lat: number; lng: number } | undefined;
+  address?: string | undefined;
   deadline?: Date | undefined;
 }
 
@@ -58,7 +60,7 @@ export class JobRepository extends BaseRepository<Job> {
   async findById(id: number): Promise<Job> {
     const query = `
       SELECT id, client_id, runner_id, title, description, price_cents,
-             location, status, deadline, created_at, updated_at,
+             location, pickup_address as address, status, deadline, created_at, updated_at,
              accepted_at, completed_at, payment_confirmed_at
       FROM jobs
       WHERE id = $1
@@ -80,21 +82,21 @@ export class JobRepository extends BaseRepository<Job> {
       ? `
         INSERT INTO jobs (
           client_id, title, description, price_cents, location, 
-          status, deadline, created_at, updated_at
+          pickup_address, status, deadline, created_at, updated_at
         )
-        VALUES ($1, $2, $3, $4, ST_SetSRID(ST_MakePoint($5, $6), 4326), 'open', $7, NOW(), NOW())
+        VALUES ($1, $2, $3, $4, ST_SetSRID(ST_MakePoint($5, $6), 4326), $7, 'open', $8, NOW(), NOW())
         RETURNING id, client_id, runner_id, title, description, price_cents,
-                  location, status, deadline, created_at, updated_at,
+                  location, pickup_address as address, status, deadline, created_at, updated_at,
                   accepted_at, completed_at, payment_confirmed_at
       `
       : `
         INSERT INTO jobs (
           client_id, title, description, price_cents, location, 
-          status, deadline, created_at, updated_at
+          pickup_address, status, deadline, created_at, updated_at
         )
-        VALUES ($1, $2, $3, $4, NULL, 'open', $5, NOW(), NOW())
+        VALUES ($1, $2, $3, $4, NULL, $5, 'open', $6, NOW(), NOW())
         RETURNING id, client_id, runner_id, title, description, price_cents,
-                  location, status, deadline, created_at, updated_at,
+                  location, pickup_address as address, status, deadline, created_at, updated_at,
                   accepted_at, completed_at, payment_confirmed_at
       `;
 
@@ -106,6 +108,7 @@ export class JobRepository extends BaseRepository<Job> {
           data.priceCents,
           data.location.lng,
           data.location.lat,
+          data.address || null,
           data.deadline || null,
         ]
       : [
@@ -113,6 +116,7 @@ export class JobRepository extends BaseRepository<Job> {
           data.title,
           data.description,
           data.priceCents,
+          data.address || null,
           data.deadline || null,
         ];
 
@@ -240,7 +244,7 @@ export class JobRepository extends BaseRepository<Job> {
   async findByClientId(clientId: number, limit: number = 20, offset: number = 0): Promise<Job[]> {
     const query = `
       SELECT id, client_id, runner_id, title, description, price_cents,
-             location, status, deadline, created_at, updated_at,
+             location, pickup_address as address, status, deadline, created_at, updated_at,
              accepted_at, completed_at, payment_confirmed_at
       FROM jobs
       WHERE client_id = $1
@@ -257,7 +261,7 @@ export class JobRepository extends BaseRepository<Job> {
   async findByRunnerId(runnerId: number, limit: number = 20, offset: number = 0): Promise<Job[]> {
     const query = `
       SELECT id, client_id, runner_id, title, description, price_cents,
-             location, status, deadline, created_at, updated_at,
+             location, pickup_address as address, status, deadline, created_at, updated_at,
              accepted_at, completed_at, payment_confirmed_at
       FROM jobs
       WHERE runner_id = $1
@@ -274,7 +278,7 @@ export class JobRepository extends BaseRepository<Job> {
   async findByStatus(status: JobStatus, limit: number = 20, offset: number = 0): Promise<Job[]> {
     const query = `
       SELECT id, client_id, runner_id, title, description, price_cents,
-             location, status, deadline, created_at, updated_at,
+             location, pickup_address as address, status, deadline, created_at, updated_at,
              accepted_at, completed_at, payment_confirmed_at
       FROM jobs
       WHERE status = $1
@@ -297,7 +301,7 @@ export class JobRepository extends BaseRepository<Job> {
   ): Promise<Job[]> {
     const query = `
       SELECT id, client_id, runner_id, title, description, price_cents,
-             location, status, deadline, created_at, updated_at,
+             location, pickup_address as address, status, deadline, created_at, updated_at,
              accepted_at, completed_at, payment_confirmed_at,
              ST_Distance(
                location::geography,
@@ -357,7 +361,7 @@ export class JobRepository extends BaseRepository<Job> {
 
     const query = `
       SELECT id, client_id, runner_id, title, description, price_cents,
-             location, status, deadline, created_at, updated_at,
+             location, pickup_address as address, status, deadline, created_at, updated_at,
              accepted_at, completed_at, payment_confirmed_at
       FROM jobs
       ${whereClause}

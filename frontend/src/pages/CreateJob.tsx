@@ -79,6 +79,12 @@ export default function CreateJob() {
       console.error('Job creation error:', err); // Debug log
       const errorMessage = err.message || err.response?.data?.error || 'Failed to create job';
       setError(errorMessage);
+      toast.error(errorMessage);
+      
+      // If unauthorized, redirect to login
+      if (err.message?.includes('session has expired') || err.message?.includes('log in')) {
+        setTimeout(() => navigate('/login'), 2000);
+      }
     } finally {
       setLoading(false);
     }

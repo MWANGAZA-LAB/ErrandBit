@@ -15,6 +15,7 @@ export interface CreateJobRequest {
   description: string;
   priceCents: number;
   location?: { lat: number; lng: number };
+  address?: string;
   deadline?: Date;
 }
 
@@ -91,6 +92,7 @@ export class JobService {
       description: data.description.trim(),
       priceCents: data.priceCents,
       location: data.location,
+      address: data.address,
       deadline: data.deadline,
     };
 
@@ -104,6 +106,7 @@ export class JobService {
       title: job.title,
       description: job.description,
       priceCents: job.price_cents,
+      address: job.address,
       status: job.status,
       deadline: job.deadline,
       createdAt: job.created_at,
